@@ -28,12 +28,13 @@
           />
         </div>
 
-        <button
+           <Button
           type="submit"
-          class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition" :loading="loading"
-        >
-          Log In
-        </button>
+          label="Log In"
+          icon="pi pi-sign-in"
+          class="w-full"
+          :loading="loading"
+        />
       </form>
 
       <p class="text-center text-sm text-gray-500 mt-4">
@@ -45,35 +46,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter, RouterLink } from "vue-router";
-import { useAuthStore } from '@/stores/authenticate.ts'
-const { authenticate } = useAuthStore();
+import { ref } from "vue"
+import { useRouter, RouterLink } from "vue-router"
+import { useAuthStore } from "@/stores/authenticate"
 
-const router = useRouter();
-const email = ref("");
-const password = ref("");
+import Button from "primevue/button"
+
+const { authenticate } = useAuthStore()
+const router = useRouter()
+
+const email = ref("")
+const password = ref("")
 const loading = ref(false)
 
 const handleLogin = async () => {
-  const userInput = {
-    email: email.value,
-    password: password.value,
-  };
-
-  loading.value = true;
-
-  console.log("Logging in with", userInput);
+  loading.value = true
 
   try {
-    await authenticate('login', userInput);
-    await router.push({ name: "dashboard" });
-  } catch (error: unknown) {
-    console.error("Login failed:", error);
+    await authenticate("login", {
+      email: email.value,
+      password: password.value
+    })
+    await router.push({ name: "dashboard" })
+  } catch (error) {
+    console.error("Login failed:", error)
+  } finally {
+    loading.value = false
   }
-  finally{
-     loading.value = false;
-  }
-};
-
+}
 </script>
