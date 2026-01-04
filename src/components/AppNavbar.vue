@@ -25,23 +25,12 @@ interface MenuSection {
   key: string
   items: MenuItem[]
 }
-
-const user = ref<User | null>(null)
 const authStore = useAuthStore()
 
-onMounted(async () => {
-  await authStore.getUser();
-  user.value = authStore.user.user_id ? authStore.user : null;
-});
 
-watch(
-  () => authStore.user,
-  (val) => {
-    user.value = val.user_id ? val : null;
-  },
-  { deep: true },
-);
-
+const user = computed(() =>
+  authStore.isAuthenticated ? authStore.user : null
+)
 
 // Collapsible menus state
 const openMenus = ref<Record<string, boolean>>({
