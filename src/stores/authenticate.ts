@@ -157,7 +157,7 @@ export const useAuthStore = defineStore("authStore", {
         };
         this.token = "";
         localStorage.removeItem("token");
-        await router.push({ name: "login" });
+        window.location.href = "/login";
       }
     },
   },
