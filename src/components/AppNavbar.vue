@@ -94,14 +94,14 @@ const menu = computed<MenuSection[] | MenuItem[]>(() => (user.value ? authMenu :
               </svg>
               <span class="font-semibold text-2xl text-primary">Kuripot Tracker</span>
             </span>
-            <Button
+            <!-- <Button
               type="button"
               @click="closeCallback"
               icon="pi pi-times"
               severity="danger"
-              variant="outlined"
+              variant="text"
               class="p-0.5 text-xs"
-            />
+            /> -->
           </div>
 
           <!-- Drawer Menu -->
@@ -193,19 +193,28 @@ const menu = computed<MenuSection[] | MenuItem[]>(() => (user.value ? authMenu :
           </div>
 
           <!-- Drawer Footer -->
-          <div v-if="user" class="mt-auto">
-            <hr class="mb-4 mx-4 border-t border-0 border-surface-200 dark:border-surface-700" />
-            <RouterLink
-              to="/profile"
-              class="m-4 flex items-center cursor-pointer p-4 gap-2 rounded hover:bg-surface-100 dark:hover:bg-surface-800"
-              @click="visible = false"
-            >
-              <Avatar
-                image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png"
-                shape="circle"
+          <div v-if="user" class="mt-auto px-4 py-4">
+        
+            <!-- Account + Logout buttons -->
+            <div class="flex items-center gap-2">
+              <RouterLink to="/profile" class="flex-auto">
+                <Button 
+                  label="Account" 
+                  icon="pi pi-user" 
+                  class="w-full" 
+                  variant="outlined" 
+                />
+              </RouterLink>
+
+              <Button 
+                label="Logout" 
+                icon="pi pi-sign-out" 
+                class="flex-auto"
+                severity="danger" 
+                variant="outlined"
+                @click="authStore.logout()"
               />
-              <span class="font-bold">{{ user.first_name }}</span>
-            </RouterLink>
+            </div>
           </div>
         </div>
       </template>
