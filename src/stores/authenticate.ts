@@ -31,6 +31,7 @@ export const useAuthStore = defineStore("authStore", {
     user: User;
     loadingUser: boolean;
     token: string;
+    isAuthenticated: boolean,
   } => ({
     user: {
       user_id: 0,
@@ -39,6 +40,7 @@ export const useAuthStore = defineStore("authStore", {
       role: [],
     },
     loadingUser: true,
+    isAuthenticated: false,
     token: localStorage.getItem("token") || "",
   }),
 
@@ -82,6 +84,7 @@ export const useAuthStore = defineStore("authStore", {
         this.user.first_name = data.firstName;
         this.user.last_name = data.lastName;
         this.user.role = Array.isArray(data.roles) ? data.roles : [data.roles];
+        this.isAuthenticated = true;
 
       } catch (error) {
         console.error("Unexpected error fetching user:", error);
@@ -124,7 +127,7 @@ export const useAuthStore = defineStore("authStore", {
       this.user.first_name = data.firstName;
       this.user.last_name = data.lastName;
       this.user.role = Array.isArray(data.roles) ? data.roles : [data.roles];
-
+      this.isAuthenticated = true;
       return data;
     }
     ,
