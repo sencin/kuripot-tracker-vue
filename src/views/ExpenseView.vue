@@ -51,6 +51,7 @@
               optionValue="id"
               placeholder="Payment Type"
               class="!bg-gray-700 !border-0 !text-white !p-2"
+              :loading="loadingOptions"
             />
 
             <Dropdown
@@ -60,6 +61,7 @@
               optionValue="id"
               placeholder="Expense Category"
               class="!bg-gray-700 !border-0 !text-white !p-2"
+              :loading="loadingOptions"
             />
 
             <InputText
@@ -81,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import Dropdown from "primevue/dropdown";
@@ -107,16 +109,57 @@ const newTransaction = ref({
   description: ""
 });
 
+const paymentTypeOptions = ref<Option[]>([]);
+const expenseCategoryOptions = ref<Option[]>([]);
+const loadingOptions = ref(false);
 
-const paymentTypeOptions = ref<Option[]>([
-  { id: 1, name: "Cash" },
-]);
 
-const expenseCategoryOptions = ref<Option[]>([
-  { id: 1, name: "Bills" },
-  { id: 2, name: "Load" },
-  { id: 3, name: "General Expenses" },
-]);
+const fetchPaymentTypes = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    loadingOptions.value = true;
+    const res = await fetch(`${apiBaseUrl}/api/payment-types`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch payment types");
+    paymentTypeOptions.value = await res.json();
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loadingOptions.value = false;
+  }
+};
+
+const fetchExpenseCategories = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    loadingOptions.value = true;
+    const res = await fetch(`${apiBaseUrl}/api/expense-categories`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch expense categories");
+    expenseCategoryOptions.value = await res.json();
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loadingOptions.value = false;
+  }
+};
+
+
+
+onMounted(() => {
+  fetchPaymentTypes();
+  fetchExpenseCategories();
+});
 
 const createTransaction = async () => {
   if (!datetime24h.value) return;
