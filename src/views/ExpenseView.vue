@@ -330,12 +330,13 @@ const createTransaction = async () => {
     datetime24h.value = null;
     visible.value = false;
 
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err);
+    
      toast.add({
       severity: "error",
       summary: "Error",
-      detail: err.message || "Failed to create transaction",
+      detail: (err as Error).message || "Failed to create transaction",
       life: 3000
     });
   } finally {
