@@ -1,4 +1,5 @@
 <template>
+    <Toast position="top-right" />
   <div class="p-2 flex flex-col items-center gap-4">
     <!-- Open Dialog Button -->
        <div class="flex justify-start w-full">
@@ -159,6 +160,8 @@ import DatePicker from "primevue/datepicker";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useAuthStore } from "@/stores/authenticate";
+import { useToast } from 'primevue/usetoast';
+const toast = useToast();
 
 interface Transaction {
   id: number;
@@ -307,6 +310,13 @@ const createTransaction = async () => {
 
     transactions.value.unshift(createdTransaction);
 
+     toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: "Transaction recorded successfully",
+      life: 3000
+    });
+
     // Reset form
     newTransaction.value = {
       type: "EXPENSE",
@@ -322,6 +332,12 @@ const createTransaction = async () => {
 
   } catch (err) {
     console.error(err);
+     toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: err.message || "Failed to create transaction",
+      life: 3000
+    });
   } finally {
     loading.value = false;
   }
