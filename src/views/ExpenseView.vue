@@ -238,8 +238,8 @@ const fetchTransactions = async () => {
     });
 
     if (!res.ok) throw new Error("Failed to fetch transactions");
-
-    transactions.value = await res.json();
+     const data = await res.json();
+     transactions.value = data.reverse();
   } finally {
     isTransactionLoading.value = false;
   }
