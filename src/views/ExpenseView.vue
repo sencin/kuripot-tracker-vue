@@ -1,7 +1,14 @@
 <template>
-  <div class="p-2 flex justify-center">
+  <div class="p-2 flex flex-col items-center gap-4">
     <!-- Open Dialog Button -->
-    <Button label="Add Expense" icon="pi pi-plus" @click="visible = true" class="p-button-sm p-button-info" />
+       <div class="flex justify-start w-full">
+      <Button
+        label="Add Expense"
+        icon="pi pi-plus"
+        @click="visible = true"
+        class="p-button-sm p-button-info justify-start w-full sm:w-auto"
+      />
+    </div>
 
     <!-- Expense Dialog -->
     <Dialog
@@ -10,28 +17,22 @@
       pt:mask:class="backdrop-blur-sm"
       :modal="true"
       :closable="false"
-      :style="{ width: '20rem' }"
+      :style="{ width: '90%', maxWidth: '24rem' }"
     >
       <template #container="{ closeCallback }">
         <div
-          class="flex flex-col px-4 py-4 gap-2 rounded-xl"
+          class="flex flex-col px-4 py-4 gap-3 rounded-xl"
           style="background-image: radial-gradient(circle at left top, var(--p-primary-700), var(--p-primary-900))"
         >
-          <!-- Header Icon
-          <svg width="30" height="35" viewBox="0 0 35 40" fill="none" class="block mx-auto">
-            <path
-              d="M25.87 18.05L23.16 17.45L25.27 20.46V29.78L32.49 23.76V13.53L29.18 14.73L25.87 18.04V18.05ZM25.27 35.49L29.18 31.58V27.67L25.27 30.98V35.49ZM20.16 17.14H20.03H20.17H20.16ZM30.1 5.19L34.89 4.81L33.08 12.33L24.1 15.67L30.08 5.2L30.1 5.19ZM5.72 14.74L2.41 13.54V23.77L9.63 29.79V20.47L11.74 17.46L9.03 18.06L5.72 14.75V14.74ZM9.63 30.98L5.72 27.67V31.58L9.63 35.49V30.98ZM4.8 5.2L10.78 15.67L1.81 12.33L0 4.81L4.79 5.19L4.8 5.2ZM24.37 21.05V34.59L22.56 37.29L20.46 39.4H14.44L12.34 37.29L10.53 34.59V21.05L12.42 18.23L17.45 26.8L22.48 18.23L24.37 21.05ZM22.85 0L22.57 0.69L17.45 13.08L12.33 0.69L12.05 0H22.85Z"
-              fill="var(--p-primary-200)"
-            />
-          </svg> -->
-
           <!-- Form Fields -->
-          <div class="grid gap-2 text-sm">
+          <div class="flex flex-col gap-3 text-sm">
+            <p>Generate New Expense</p>
             <InputNumber
               v-model="newTransaction.amount"
-              mode="decimal"
+              mode="currency"
               placeholder="Amount"
-              class="!bg-gray-700 !border-0 !text-white !p-2"
+              currency="PHP"
+              class="!p-0 !h-auto !text-white !border-0"
             />
 
             <DatePicker
@@ -40,7 +41,7 @@
               showTime
               hourFormat="24"
               placeholder="Select Date & Time"
-              class="!bg-gray-700 !border-0 !text-white !p-2"
+              class="!p-0 !h-auto !text-white !border-0 w-full"
               fluid
             />
 
@@ -50,7 +51,7 @@
               optionLabel="name"
               optionValue="id"
               placeholder="Payment Type"
-              class="!bg-gray-700 !border-0 !text-white !p-2"
+              class="w-full"
               :loading="loadingOptions"
             />
 
@@ -60,30 +61,92 @@
               optionLabel="name"
               optionValue="id"
               placeholder="Expense Category"
-              class="!bg-gray-700 !border-0 !text-white !p-2"
+              class="w-full"
               :loading="loadingOptions"
             />
 
             <InputText
               v-model="newTransaction.description"
               placeholder="Description"
-              class="!bg-gray-700 !border-0 !text-white !p-2"
+              size="large"
+              class="!p-2  !border-0 !text-white w-full"
             />
           </div>
 
           <!-- Buttons -->
-          <div class="flex flex-col sm:flex-row gap-2 mt-2 text-sm">
-            <Button label="Cancel" class="!p-2 w-full sm:w-1/2 p-button-secondary" @click="closeCallback" />
-            <Button label="Save"  icon="pi pi-sign-in"  :loading="loading" class="p-2 w-full sm:w-1/2 p-button-success" @click="createTransaction" />
+          <div class="flex flex-col gap-2 mt-3 sm:flex-row">
+            <Button
+              label="Cancel"
+              class="w-full sm:w-1/2 p-button-secondary"
+              @click="closeCallback"
+            />
+            <Button
+              label="Save"
+              icon="pi pi-sign-in"
+              :loading="loading"
+              class="w-full sm:w-1/2 p-button-success"
+              @click="createTransaction"
+            />
           </div>
         </div>
       </template>
     </Dialog>
+
+    <!-- Transactions Table -->
+    <div class="w-full overflow-x-auto">
+ <DataTable
+  :value="transactions"
+  paginator
+  :rows="5"
+  :rowsPerPageOptions="[5, 10, 20, 50]"
+  stripedRows
+  responsiveLayout="scroll"
+  class="min-w-[24rem] sm:min-w-[60rem]"
+>
+  <Column field="expenseCategoryName" header="Category" />
+
+  <Column field="amount" header="Amount">
+    <template #body="{ data }">
+      ₱{{ Number(data.amount).toFixed(2) }}
+    </template>
+  </Column>
+
+  <Column field="description" header="Description" />
+
+  <Column field="paymentTypeName" header="Payment" />
+
+  <Column field="date" header="Date & Time">
+    <template #body="{ data }">
+      {{ data.date }} {{ data.time }}
+    </template>
+  </Column>
+</DataTable>
+
+    </div>
+
+    
   </div>
 </template>
+<style scoped>
+/* Ensure inputs/buttons take full width on mobile */
+.p-inputtext, .p-dropdown, .p-inputnumber, .p-datepicker {
+  width: 100%;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  padding: 0.75rem !important;
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+  border: none !important;
+}
 
+@media (min-width: 640px) {
+  .p-inputtext, .p-dropdown, .p-inputnumber, .p-datepicker {
+    font-size: 0.875rem;
+  }
+}
+</style>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import Dropdown from "primevue/dropdown";
@@ -91,12 +154,30 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import DatePicker from "primevue/datepicker";
 
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import { useAuthStore } from "@/stores/authenticate";
+
+interface Transaction {
+  id: number;
+  amount: string;          // backend sends string
+  date: string;
+  time: string;
+  description: string;
+  expenseCategoryName: string;
+  paymentTypeName: string;
+  type: "EXPENSE" | "INCOME";
+  year: string;
+}
+
+const transactions = ref<Transaction[]>([]);
+
 interface Option { id: number; name: string; }
 
 const visible = ref(false);
 const datetime24h = ref<Date | null>(null);
 const loading = ref(false)
-
+const authStore = useAuthStore();
 const apiBaseUrl: string = import.meta.env.VITE_RESTAPI_URL;
 
 const newTransaction = ref({
@@ -112,6 +193,12 @@ const newTransaction = ref({
 const paymentTypeOptions = ref<Option[]>([]);
 const expenseCategoryOptions = ref<Option[]>([]);
 const loadingOptions = ref(false);
+
+
+const canFetchTransactions = computed(() => {
+  return !!authStore.token && !!authStore.user?.user_id;
+});
+
 
 
 const fetchPaymentTypes = async () => {
@@ -133,7 +220,24 @@ const fetchPaymentTypes = async () => {
     loadingOptions.value = false;
   }
 };
+const fetchTransactions = async () => {
+  loading.value = true;
+  const { user, token } = authStore;
+  try {
+     const res = await fetch(`${apiBaseUrl}/api/transactions/user/${user.user_id}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/json"
+      }
+    });
 
+    if (!res.ok) throw new Error("Failed to fetch transactions");
+
+    transactions.value = await res.json();
+  } finally {
+    loading.value = false;
+  }
+};
 const fetchExpenseCategories = async () => {
   const token = localStorage.getItem("token");
   try {
@@ -160,6 +264,16 @@ onMounted(() => {
   fetchPaymentTypes();
   fetchExpenseCategories();
 });
+
+watch(
+  canFetchTransactions,
+  (ready) => {
+    if (ready) {
+      fetchTransactions();
+    }
+  },
+  { immediate: true }
+);
 
 const createTransaction = async () => {
   if (!datetime24h.value) return;
@@ -205,13 +319,53 @@ const createTransaction = async () => {
 </script>
 
 <style scoped>
-.p-inputtext, .p-dropdown, .p-inputnumber, .p-datepicker {
+/* Apply uniform dark style to all PrimeVue input components */
+.p-inputtext,
+.p-inputnumber,
+.p-datepicker,
+.p-dropdown {
   width: 100%;
   background-color: #1f2937 !important; /* Tailwind gray-800 */
-  color: #f9fafb !important; /* Tailwind gray-50 */
-  border-radius: 0.25rem;
-  padding: 0.5rem !important;
+  color: #f9fafb !important;           /* Tailwind gray-50 */
   border: none !important;
-  font-size: 0.875rem;
+  border-radius: 0.25rem !important;
+  padding: 0.5rem !important;
+  font-size: 0.875rem; /* small text for mobile */
+}
+
+/* Remove extra padding/margin inside InputNumber and DatePicker wrapper */
+.p-inputnumber .p-inputnumber-input,
+.p-datepicker input {
+  padding: 0.5rem !important;
+  background-color: transparent !important;
+  color: inherit;
+}
+
+/* Dropdown dark style */
+.p-dropdown .p-dropdown-label,
+.p-dropdown .p-dropdown-trigger {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+  border: none !important;
+  padding: 0.5rem !important;
+}
+
+/* Fluid datepicker fix */
+.p-datepicker.p-component.p-inputwrapper {
+  width: 100% !important;
+}
+
+/* Focus effect */
+.p-inputtext:focus,
+.p-inputnumber:focus,
+.p-dropdown:focus,
+.p-datepicker:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important; /* Tailwind blue-500 */
+}
+
+/* Optional: Reduce dialog padding for mobile */
+.p-dialog .p-dialog-content {
+  padding: 1rem !important;
 }
 </style>
+
