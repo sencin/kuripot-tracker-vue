@@ -280,7 +280,7 @@ watch(
 
 const createTransaction = async () => {
   if (!datetime24h.value) return;
-  
+
   const dt = datetime24h.value;
   newTransaction.value.date = dt.toISOString()?.split("T")[0] ?? "";
   newTransaction.value.time = `${dt.getHours().toString().padStart(2,"0")}:${dt.getMinutes().toString().padStart(2,"0")}:00`;
@@ -288,16 +288,24 @@ const createTransaction = async () => {
   const payload = { ...newTransaction.value };
   const token = localStorage.getItem("token");
 
-
   try {
-    loading.value = true
+    loading.value = true;
+
     const res = await fetch(`${apiBaseUrl}/api/transactions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      },
       body: JSON.stringify(payload)
     });
 
     if (!res.ok) throw new Error("Failed to create transaction");
+
+    const data = await res.json();
+    const createdTransaction = data.transaction;
+
+    transactions.value.unshift(createdTransaction);
 
     // Reset form
     newTransaction.value = {
@@ -314,11 +322,11 @@ const createTransaction = async () => {
 
   } catch (err) {
     console.error(err);
-  }
-  finally {
-    loading.value = false
+  } finally {
+    loading.value = false;
   }
 };
+
 </script>
 
 <style scoped>
