@@ -92,39 +92,41 @@
       </template>
     </Dialog>
 
-    <!-- Transactions Table -->
-    <div class="w-full overflow-x-auto">
- <DataTable
-  :value="transactions"
-  paginator
-  :rows="5"
-  :rowsPerPageOptions="[5, 10, 20, 50]"
-  stripedRows
-  responsiveLayout="scroll"
-  class="min-w-[24rem] sm:min-w-[60rem]"
->
-  <Column field="expenseCategoryName" header="Category" />
-
-  <Column field="amount" header="Amount">
-    <template #body="{ data }">
-      ₱{{ Number(data.amount).toFixed(2) }}
-    </template>
-  </Column>
-
-  <Column field="description" header="Description" />
-
-  <Column field="paymentTypeName" header="Payment" />
-
-  <Column field="date" header="Date & Time">
-    <template #body="{ data }">
-      {{ data.date }} {{ data.time }}
-    </template>
-  </Column>
-</DataTable>
-
-    </div>
-
     
+      <div v-if="isTransactionLoading" class="text-sm text-gray-400">
+        Fetching data from server...
+      </div>
+
+    <!-- Transactions Table -->
+     <div v-else  class="w-full overflow-x-auto">
+      <DataTable
+        :value="transactions"
+        paginator
+        :rows="5"
+        :rowsPerPageOptions="[5, 10, 20, 50]"
+        stripedRows
+        responsiveLayout="scroll"
+        class="min-w-[24rem] sm:min-w-[60rem]"
+      >
+        <Column field="expenseCategoryName" header="Category" />
+
+        <Column field="amount" header="Amount">
+          <template #body="{ data }">
+            ₱{{ Number(data.amount).toFixed(2) }}
+          </template>
+        </Column>
+
+        <Column field="description" header="Description" />
+
+        <Column field="paymentTypeName" header="Payment" />
+
+        <Column field="date" header="Date & Time">
+          <template #body="{ data }">
+            {{ data.date }} {{ data.time }}
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>
 <style scoped>
@@ -177,6 +179,7 @@ interface Option { id: number; name: string; }
 const visible = ref(false);
 const datetime24h = ref<Date | null>(null);
 const loading = ref(false)
+const isTransactionLoading = ref(true);
 const authStore = useAuthStore();
 const apiBaseUrl: string = import.meta.env.VITE_RESTAPI_URL;
 
@@ -221,7 +224,7 @@ const fetchPaymentTypes = async () => {
   }
 };
 const fetchTransactions = async () => {
-  loading.value = true;
+  isTransactionLoading.value = true;
   const { user, token } = authStore;
   try {
      const res = await fetch(`${apiBaseUrl}/api/transactions/user/${user.user_id}`, {
@@ -235,7 +238,7 @@ const fetchTransactions = async () => {
 
     transactions.value = await res.json();
   } finally {
-    loading.value = false;
+    isTransactionLoading.value = false;
   }
 };
 const fetchExpenseCategories = async () => {
