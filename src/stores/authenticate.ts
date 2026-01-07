@@ -29,7 +29,7 @@ interface UserResponse {
 export const useAuthStore = defineStore("authStore", {
   state: (): {
     user: User;
-    loadingUser: boolean;
+    isVerified: boolean;
     token: string;
     isAuthenticated: boolean,
   } => ({
@@ -39,44 +39,31 @@ export const useAuthStore = defineStore("authStore", {
       last_name: "",
       role: [],
     },
-    loadingUser: true,
     isAuthenticated: false,
+    isVerified: false,
     token: localStorage.getItem("token") || "",
   }),
 
   actions: {
     /******************* Get authenticated user *******************/
-    async getUser(): Promise<void> {
-      const router = useRouter();
-      const token = this.token;
+    async getUser() {
+      if (this.isVerified) return;
 
-      if (!token) {
-        this.loadingUser = false;
-        console.log("No token available. Cancelling Fetching User");
-        router.push({ name: "login" });
+      if (!this.token) {
+        this.isAuthenticated = false;
+        this.isVerified = true;
         return;
       }
 
       try {
         const res = await fetch(`${apiBaseUrl}/api/user/verify-token`, {
           headers: {
-            authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          credentials: "include",
+            Authorization: `Bearer ${this.token}`,
+            Accept: "application/json"
+          }
         });
 
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          this.loadingUser = false;
-          await router.push({ name: "login" });
-          return;
-        }
-
-        if (!res.ok) {
-          throw new Error(`Failed to fetch user data: ${res.status}`);
-        }
+        if (!res.ok) throw new Error("Token invalid");
 
         const data: UserResponse = await res.json();
 
@@ -84,26 +71,18 @@ export const useAuthStore = defineStore("authStore", {
         this.user.first_name = data.firstName;
         this.user.last_name = data.lastName;
         this.user.role = Array.isArray(data.roles) ? data.roles : [data.roles];
-        this.isAuthenticated = true;
 
-      } catch (error) {
-        console.error("Unexpected error fetching user:", error);
-        this.user = {
-          user_id: 0,
-          first_name: "",
-          last_name: "",
-          role: [],
-        };
+        this.isAuthenticated = true;
+        this.isVerified = true;
+      } catch {
+        await this.logout();
       } finally {
-        this.loadingUser = false;
+       
       }
     },
 
     /******************* Login or Register user *******************/
-    async authenticate(
-      apiRoute: string,
-      formData: { email: string; password: string } // explicit type instead of unknown
-    ): Promise<AuthResponse> {          // return the response instead of pushing
+    async authenticate(apiRoute: string, formData: { email: string; password: string }): Promise<AuthResponse> {
       const res = await fetch(`${apiBaseUrl}/api/auth/${apiRoute}`, {
         method: "POST",
         headers: {
@@ -122,7 +101,7 @@ export const useAuthStore = defineStore("authStore", {
 
       this.token = data.token;
       localStorage.setItem("token", data.token);
-
+      this.isVerified = false;
       this.user.user_id = data.id;
       this.user.first_name = data.firstName;
       this.user.last_name = data.lastName;
@@ -132,8 +111,8 @@ export const useAuthStore = defineStore("authStore", {
     }
     ,
     /******************* Logout user *******************/
-    async logout(): Promise<void> {
-      const router = useRouter();
+    async logout(): Promise<boolean> {
+
 
       const res = await fetch(`${apiBaseUrl}/api/auth/logout`, {
         method: "post",
@@ -157,8 +136,9 @@ export const useAuthStore = defineStore("authStore", {
         };
         this.token = "";
         localStorage.removeItem("token");
-        window.location.href = "/login";
+        this.isVerified = false;
       }
+       return true; 
     },
   },
 });
