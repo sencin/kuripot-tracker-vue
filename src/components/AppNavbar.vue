@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import Drawer from 'primevue/drawer'
 import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authenticate.ts'
 import type { User } from '@/stores/authenticate'
 
@@ -25,12 +25,7 @@ interface MenuSection {
   key: string
   items: MenuItem[]
 }
-const authStore = useAuthStore()
 
-
-const user = computed(() =>
-  authStore.isAuthenticated ? authStore.user : null
-)
 
 // Collapsible menus state
 const openMenus = ref<Record<string, boolean>>({
@@ -38,6 +33,13 @@ const openMenus = ref<Record<string, boolean>>({
   record: true,
   application: true,
 })
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+const user = computed(() =>
+  authStore.isAuthenticated ? authStore.user : null
+)
 
 // Menu for logged-in users
 const authMenu: MenuSection[] = [
@@ -78,6 +80,14 @@ const guestMenu: MenuItem[] = [
 
 // Computed menu based on user
 const menu = computed<MenuSection[] | MenuItem[]>(() => (user.value ? authMenu : guestMenu))
+
+const handleLogout = async () => {
+  const success = await authStore.logout();
+  if (success) {
+    router.push({ name: "login" }); 
+  }
+};
+
 </script>
 
 <template>
@@ -212,7 +222,7 @@ const menu = computed<MenuSection[] | MenuItem[]>(() => (user.value ? authMenu :
                 class="flex-auto"
                 severity="danger" 
                 variant="outlined"
-                @click="authStore.logout()"
+                @click="handleLogout"
               />
             </div>
           </div>
