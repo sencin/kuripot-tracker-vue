@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import AppNavbar from '@/components/AppNavbar.vue'
-import { useAuthStore } from '@/stores/authenticate'
-import { onMounted } from 'vue'
-
-const authStore = useAuthStore()
-
-onMounted(async () => {
-  await authStore.getUser()
-})
 
 </script>
 
