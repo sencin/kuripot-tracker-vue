@@ -61,15 +61,18 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
-  const token = authStore.token;
 
-  if (to.meta.guest && token) {
+  if (!authStore.isVerified) {
+    await authStore.getUser();
+  }
+
+  if (to.meta.guest && authStore.isAuthenticated) {
     console.log("Guest route accessed by logged-in user. Redirecting to dashboard.");
     return { name: "dashboard" };
   }
 
-  if (to.meta.auth && !token) {
-    console.log("Auth required and no token found. Redirecting to login.");
+  if (to.meta.auth && !authStore.isAuthenticated) {
+    console.log("Auth required and user is not authenticated. Redirecting to login.");
     return { name: "login" };
   }
 });
