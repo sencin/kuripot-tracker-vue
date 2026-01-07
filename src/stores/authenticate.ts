@@ -32,6 +32,7 @@ export const useAuthStore = defineStore("authStore", {
     isVerified: boolean;
     token: string;
     isAuthenticated: boolean,
+    loading: boolean,
   } => ({
     user: {
       user_id: 0,
@@ -41,6 +42,7 @@ export const useAuthStore = defineStore("authStore", {
     },
     isAuthenticated: false,
     isVerified: false,
+    loading: true,
     token: localStorage.getItem("token") || "",
   }),
 
@@ -52,8 +54,11 @@ export const useAuthStore = defineStore("authStore", {
       if (!this.token) {
         this.isAuthenticated = false;
         this.isVerified = true;
+        this.loading = false;
         return;
       }
+
+      this.loading = true;
 
       try {
         const res = await fetch(`${apiBaseUrl}/api/user/verify-token`, {
@@ -63,10 +68,10 @@ export const useAuthStore = defineStore("authStore", {
           }
         });
 
+
         if (!res.ok) throw new Error("Token invalid");
 
         const data: UserResponse = await res.json();
-
         this.user.user_id = data.id;
         this.user.first_name = data.firstName;
         this.user.last_name = data.lastName;
@@ -74,10 +79,11 @@ export const useAuthStore = defineStore("authStore", {
 
         this.isAuthenticated = true;
         this.isVerified = true;
+
       } catch {
         await this.logout();
       } finally {
-       
+        this.loading = false;
       }
     },
 
@@ -138,7 +144,7 @@ export const useAuthStore = defineStore("authStore", {
         localStorage.removeItem("token");
         this.isVerified = false;
       }
-       return true; 
+       return true;
     },
   },
 });
