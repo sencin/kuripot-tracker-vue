@@ -1,5 +1,4 @@
 <template>
-    <Toast position="top-right" />
   <div class="p-2 flex flex-col items-center gap-4">
     <!-- Open Dialog Button -->
        <div class="flex justify-start w-full">
@@ -130,24 +129,7 @@
     </div>
   </div>
 </template>
-<style scoped>
-/* Ensure inputs/buttons take full width on mobile */
-.p-inputtext, .p-dropdown, .p-inputnumber, .p-datepicker {
-  width: 100%;
-  font-size: 0.875rem;
-  border-radius: 0.5rem;
-  padding: 0.75rem !important;
-  background-color: #1f2937 !important;
-  color: #f9fafb !important;
-  border: none !important;
-}
 
-@media (min-width: 640px) {
-  .p-inputtext, .p-dropdown, .p-inputnumber, .p-datepicker {
-    font-size: 0.875rem;
-  }
-}
-</style>
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import InputText from "primevue/inputtext";
@@ -160,6 +142,9 @@ import DatePicker from "primevue/datepicker";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useAuthStore } from "@/stores/authenticate";
+
+import { HTTPRequest } from '@/utils/HTTPRequest'
+
 import { useToast } from 'primevue/usetoast';
 const toast = useToast();
 
@@ -175,6 +160,9 @@ interface Transaction {
   year: string;
 }
 
+interface CreateExpenseResponse {
+  transaction: Transaction
+}
 const transactions = ref<Transaction[]>([]);
 
 interface Option { id: number; name: string; }
@@ -206,20 +194,10 @@ const canFetchTransactions = computed(() => {
 });
 
 
-
 const fetchPaymentTypes = async () => {
-  const token = localStorage.getItem("token");
   try {
     loadingOptions.value = true;
-    const res = await fetch(`${apiBaseUrl}/api/payment-types`, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
-
-    if (!res.ok) throw new Error("Failed to fetch payment types");
-    paymentTypeOptions.value = await res.json();
-
+    paymentTypeOptions.value = await HTTPRequest.get('/api/payment-types', authStore.token)
   } catch (err) {
     console.error(err);
   } finally {
@@ -228,35 +206,17 @@ const fetchPaymentTypes = async () => {
 };
 const fetchTransactions = async () => {
   isTransactionLoading.value = true;
-  const { user, token } = authStore;
   try {
-     const res = await fetch(`${apiBaseUrl}/api/transactions/user/${user.user_id}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json"
-      }
-    });
-
-    if (!res.ok) throw new Error("Failed to fetch transactions");
-     const data = await res.json();
+     const data = await HTTPRequest.get<Transaction[]>(`/api/transactions/user/${authStore.user.user_id}`, authStore.token)
      transactions.value = data.reverse();
   } finally {
     isTransactionLoading.value = false;
   }
 };
 const fetchExpenseCategories = async () => {
-  const token = localStorage.getItem("token");
   try {
     loadingOptions.value = true;
-    const res = await fetch(`${apiBaseUrl}/api/expense-categories`, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
-
-    if (!res.ok) throw new Error("Failed to fetch expense categories");
-    expenseCategoryOptions.value = await res.json();
-
+    expenseCategoryOptions.value = await HTTPRequest.get('/api/expense-categories', authStore.token)
   } catch (err) {
     console.error(err);
   } finally {
@@ -293,27 +253,14 @@ const createTransaction = async () => {
 
   try {
     loading.value = true;
-
-    const res = await fetch(`${apiBaseUrl}/api/transactions`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) throw new Error("Failed to create transaction");
-
-    const data = await res.json();
+    const data = await HTTPRequest.post<CreateExpenseResponse>('/api/transactions', authStore.token, payload)
     const createdTransaction = data.transaction;
-
     transactions.value.unshift(createdTransaction);
 
      toast.add({
       severity: "success",
       summary: "Success",
-      detail: "Transaction recorded successfully",
+      detail: "Expense Recorded",
       life: 3000
     });
 
@@ -347,53 +294,20 @@ const createTransaction = async () => {
 </script>
 
 <style scoped>
-/* Apply uniform dark style to all PrimeVue input components */
-.p-inputtext,
-.p-inputnumber,
-.p-datepicker,
-.p-dropdown {
+/* Ensure inputs/buttons take full width on mobile */
+.p-inputtext, .p-dropdown, .p-inputnumber, .p-datepicker {
   width: 100%;
-  background-color: #1f2937 !important; /* Tailwind gray-800 */
-  color: #f9fafb !important;           /* Tailwind gray-50 */
-  border: none !important;
-  border-radius: 0.25rem !important;
-  padding: 0.5rem !important;
-  font-size: 0.875rem; /* small text for mobile */
-}
-
-/* Remove extra padding/margin inside InputNumber and DatePicker wrapper */
-.p-inputnumber .p-inputnumber-input,
-.p-datepicker input {
-  padding: 0.5rem !important;
-  background-color: transparent !important;
-  color: inherit;
-}
-
-/* Dropdown dark style */
-.p-dropdown .p-dropdown-label,
-.p-dropdown .p-dropdown-trigger {
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  padding: 0.75rem !important;
   background-color: #1f2937 !important;
   color: #f9fafb !important;
   border: none !important;
-  padding: 0.5rem !important;
 }
 
-/* Fluid datepicker fix */
-.p-datepicker.p-component.p-inputwrapper {
-  width: 100% !important;
-}
-
-/* Focus effect */
-.p-inputtext:focus,
-.p-inputnumber:focus,
-.p-dropdown:focus,
-.p-datepicker:focus {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important; /* Tailwind blue-500 */
-}
-
-/* Optional: Reduce dialog padding for mobile */
-.p-dialog .p-dialog-content {
-  padding: 1rem !important;
+@media (min-width: 640px) {
+  .p-inputtext, .p-dropdown, .p-inputnumber, .p-datepicker {
+    font-size: 0.875rem;
+  }
 }
 </style>
-
