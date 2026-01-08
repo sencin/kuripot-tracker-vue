@@ -85,6 +85,7 @@ const handleLogout = async () => {
   const success = await authStore.logout();
   if (success) {
     router.push({ name: "login" }); 
+    visible.value = false
   }
 };
 
