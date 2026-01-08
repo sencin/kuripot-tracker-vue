@@ -3,13 +3,12 @@ import { RouterLink, RouterView } from 'vue-router'
 import AppNavbar from '@/components/AppNavbar.vue'
 import { useAuthStore } from '@/stores/authenticate.ts'
 
-
 const authStore = useAuthStore()
-
+import Toast from 'primevue/toast';
 </script>
 
 <template>
-
+  <Toast position="bottom-right"/>
   <div v-if="authStore.loading === true"  class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm">
       <div class="w-full text-white text-center">
         Fetching user data<span class="dot-typing"></span>
@@ -22,9 +21,6 @@ const authStore = useAuthStore()
       </svg>
     </div>
   </div>
-
-
-
 
   <div class="min-h-screen px-4 sm:px-6 lg:px-8 py-4 flex flex-col">
   <header>
