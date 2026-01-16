@@ -100,7 +100,7 @@
     <!-- Transactions Table -->
      <div v-else  class="w-full overflow-x-auto">
       <DataTable
-        :value="transactions"
+        :value="expenseTransactions"
         paginator
         :rows="5"
         :rowsPerPageOptions="[5, 10, 20, 50]"
@@ -173,6 +173,10 @@ const loading = ref(false)
 const isTransactionLoading = ref(true);
 const authStore = useAuthStore();
 const apiBaseUrl: string = import.meta.env.VITE_RESTAPI_URL;
+
+const expenseTransactions = computed(() =>
+  transactions.value.filter(t => t.type === "EXPENSE")
+);
 
 const newTransaction = ref({
   type: "EXPENSE",
