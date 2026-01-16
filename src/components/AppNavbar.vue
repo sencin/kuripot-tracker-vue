@@ -48,27 +48,27 @@ const authMenu: MenuSection[] = [
     key: 'favorites',
     items: [
       { label: 'Dashboard', icon: 'pi pi-home', to: '/' },
-      { label: 'Overview', icon: 'pi pi-bookmark', to: '/overview' },
+      { label: 'Overview', icon: 'pi pi-chart-bar', to: '/overview' },
       {
         label: 'Record',
-        icon: 'pi pi-chart-line',
+        icon: 'pi pi-calculator',
         key: 'record',
         children: [
-          { label: 'Income', icon: 'pi pi-chart-line', to: '/record/income' },
-          { label: 'Expenses', icon: 'pi pi-chart-line', to: '/record/expenses' },
+          { label: 'Income', icon: 'pi pi-cart-plus', to: '/record/income' },
+          { label: 'Expenses', icon: 'pi pi-cart-minus', to: '/record/expenses' },
         ],
       },
-      { label: 'Team', icon: 'pi pi-users', to: '/team' },
+      { label: 'About Us', icon: 'pi pi-users', to: '/team' },
     ],
   },
-  {
-    title: 'APPLICATION',
-    key: 'application',
-    items: [
-      { label: 'Projects', icon: 'pi pi-folder', to: '/projects' },
-      { label: 'Performance', icon: 'pi pi-chart-bar', to: '/performance' },
-    ],
-  },
+  // {
+  //   title: 'APPLICATION',
+  //   key: 'application',
+  //   items: [
+  //     { label: 'Projects', icon: 'pi pi-folder', to: '/projects' },
+  //     { label: 'Performance', icon: 'pi pi-chart-bar', to: '/performance' },
+  //   ],
+  // },
 ]
 
 // Menu for guests
