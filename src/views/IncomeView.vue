@@ -161,7 +161,7 @@ const newTransaction = ref({
   date: "",
   time: "",
   paymentTypeId: 0,
-  expenseCategoryId: 0,
+  expenseCategoryId: null,
   description: ""
 });
 
@@ -243,7 +243,7 @@ const createTransaction = async () => {
       date: "",
       time: "",
       paymentTypeId: 0,
-      expenseCategoryId: 0,
+      expenseCategoryId: null,
       description: ""
     };
 
