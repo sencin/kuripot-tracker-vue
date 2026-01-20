@@ -35,15 +35,25 @@
               class="!p-0 !h-auto !text-white !border-0"
             />
 
-            <DatePicker
-              id="datepicker-24h"
-              v-model="datetime24h"
-              showTime
-              hourFormat="24"
-              placeholder="Select Date & Time"
-              class="!p-0 !h-auto !text-white !border-0 w-full"
-              fluid
-            />
+              <DatePicker
+                v-model="selectedDate"
+                inputId="income-date"
+                showIcon
+                placeholder="Date"
+                iconDisplay="input"
+                fluid
+                 class="!p-0 !h-auto !text-black !border-0"
+              />
+        
+              <DatePicker
+                v-model="selectedTime"
+                inputId="income-time"
+                timeOnly
+                placeholder="Time"
+                hourFormat="12"
+                fluid
+                 class="!p-0 !h-auto !text-black !border-0"
+              />
 
             <Dropdown
               v-model="newTransaction.paymentTypeId"
@@ -103,7 +113,7 @@
 
         <Column field="date" header="Date & Time">
           <template #body="{ data }">
-            {{ data.date }} {{ data.time }}
+            {{ data.date }} {{ formatTimeAMPM(data.time) }}
           </template>
         </Column>
       </DataTable>
@@ -149,7 +159,8 @@ const transactions = ref<Transaction[]>([]);
 interface Option { id: number; name: string; }
 
 const visible = ref(false);
-const datetime24h = ref<Date | null>(null);
+const selectedDate = ref<Date | null>(null);
+const selectedTime = ref<Date | null>(null);
 const loading = ref(false)
 const isTransactionLoading = ref(true);
 const authStore = useAuthStore();
@@ -169,6 +180,23 @@ const paymentTypeOptions = ref<Option[]>([]);
 
 const loadingOptions = ref(false);
 
+
+const formatTimeAMPM = (time?: string) => {
+  if (!time) return '';
+
+  const parts = time.split(':');
+  if (parts.length < 2) return time; 
+
+  const h = Number(parts[0]);
+  const m = Number(parts[1]);
+
+  if (isNaN(h) || isNaN(m)) return time; 
+
+  const hour12 = h % 12 || 12;
+  const period = h >= 12 ? 'PM' : 'AM';
+
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+};
 
 const canFetchTransactions = computed(() => {
   return !!authStore.token && !!authStore.user?.user_id;
@@ -214,29 +242,40 @@ watch(
 );
 
 const createTransaction = async () => {
-  if (!datetime24h.value) return;
+  if (!selectedDate.value || !selectedTime.value) return;
 
-  const dt = datetime24h.value;
-  newTransaction.value.date = dt.toISOString()?.split("T")[0] ?? "";
-  newTransaction.value.time = `${dt.getHours().toString().padStart(2,"0")}:${dt.getMinutes().toString().padStart(2,"0")}:00`;
+  const d = selectedDate.value;
+  const t = selectedTime.value;
+
+  // DATE — extract using LOCAL time (PH safe)
+  newTransaction.value.date =
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  // TIME — extract using LOCAL time
+  newTransaction.value.time =
+    `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}:00`;
 
   const payload = { ...newTransaction.value };
-  const token = localStorage.getItem("token");
 
   try {
     loading.value = true;
-    const data = await HTTPRequest.post<CreateExpenseResponse>('/api/transactions', authStore.token, payload)
-    const createdTransaction = data.transaction;
-    transactions.value.unshift(createdTransaction);
 
-     toast.add({
+    const data = await HTTPRequest.post<CreateExpenseResponse>(
+      "/api/transactions",
+      authStore.token,
+      payload
+    );
+
+    transactions.value.unshift(data.transaction);
+
+    toast.add({
       severity: "success",
       summary: "Success",
-      detail: "Expense Recorded",
+      detail: "Income Recorded",
       life: 3000
     });
 
-    // Reset form
+    // Reset
     newTransaction.value = {
       type: "INCOME",
       amount: null,
@@ -247,13 +286,14 @@ const createTransaction = async () => {
       description: ""
     };
 
-    datetime24h.value = null;
+    selectedDate.value = null;
+    selectedTime.value = null;
     visible.value = false;
 
   } catch (err: unknown) {
     console.error(err);
-    
-     toast.add({
+
+    toast.add({
       severity: "error",
       summary: "Error",
       detail: (err as Error).message || "Failed to create transaction",
