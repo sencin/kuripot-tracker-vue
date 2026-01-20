@@ -34,29 +34,25 @@
               currency="PHP"
               class="!p-0 !h-auto !text-white !border-0"
             />
-
-            <FloatLabel variant="on">
               <DatePicker
                 v-model="selectedDate"
                 inputId="income-date"
                 showIcon
+                placeholder="Date"
                 iconDisplay="input"
                 fluid
+                 class="!p-0 !h-auto !text-black !border-0"
               />
-              <label for="income-date">Date</label>
-            </FloatLabel>
-
-            <FloatLabel variant="on">
+        
               <DatePicker
                 v-model="selectedTime"
                 inputId="income-time"
                 timeOnly
+                placeholder="Time"
                 hourFormat="12"
                 fluid
+                 class="!p-0 !h-auto !text-black !border-0"
               />
-              <label for="income-time">Time</label>
-            </FloatLabel>
-
             <Dropdown
               v-model="newTransaction.paymentTypeId"
               :options="paymentTypeOptions"
@@ -134,7 +130,7 @@
 
         <Column field="date" header="Date & Time">
           <template #body="{ data }">
-            {{ data.date }} {{ data.time }}
+            {{ data.date }} {{ formatTimeAMPM(data.time) }}
           </template>
         </Column>
       </DataTable>
@@ -205,6 +201,24 @@ const newTransaction = ref({
 const paymentTypeOptions = ref<Option[]>([]);
 const expenseCategoryOptions = ref<Option[]>([]);
 const loadingOptions = ref(false);
+
+
+const formatTimeAMPM = (time?: string) => {
+  if (!time) return '';
+
+  const parts = time.split(':');
+  if (parts.length < 2) return time; 
+
+  const h = Number(parts[0]);
+  const m = Number(parts[1]);
+
+  if (isNaN(h) || isNaN(m)) return time; 
+
+  const hour12 = h % 12 || 12;
+  const period = h >= 12 ? 'PM' : 'AM';
+
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+};
 
 
 const canFetchTransactions = computed(() => {
