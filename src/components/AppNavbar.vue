@@ -29,7 +29,7 @@ interface MenuSection {
 
 // Collapsible menus state
 const openMenus = ref<Record<string, boolean>>({
-  favorites: true,
+  Main: true,
   record: true,
   application: true,
 })
@@ -44,8 +44,8 @@ const user = computed(() =>
 // Menu for logged-in users
 const authMenu: MenuSection[] = [
   {
-    title: 'FAVORITES',
-    key: 'favorites',
+    title: 'Main Menu',
+    key: 'Main',
     items: [
       { label: 'Dashboard', icon: 'pi pi-home', to: '/' },
       { label: 'Overview', icon: 'pi pi-chart-bar', to: '/overview' },
