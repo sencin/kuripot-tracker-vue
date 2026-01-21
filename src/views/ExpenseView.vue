@@ -221,9 +221,7 @@ const formatTimeAMPM = (time?: string) => {
 };
 
 
-const canFetchTransactions = computed(() => {
-  return !!authStore.token && !!authStore.user?.user_id;
-});
+const canFetchTransactions = computed(() => !!authStore.token);
 
 
 const fetchPaymentTypes = async () => {
@@ -236,15 +234,26 @@ const fetchPaymentTypes = async () => {
     loadingOptions.value = false;
   }
 };
-const fetchTransactions = async () => {
+const fetchTransactions = async (type?: "INCOME" | "EXPENSE") => {
   isTransactionLoading.value = true;
   try {
-     const data = await HTTPRequest.get<Transaction[]>(`/api/transactions/user/${authStore.user.user_id}`, authStore.token)
-     transactions.value = data.reverse();
+    // Construct URL with optional type filter
+    let url = '/api/transactions/me';
+    if (type) url += `?type=${type}`;
+
+    // Fetch transactions using JWT only
+    const data = await HTTPRequest.get<Transaction[]>(url, authStore.token);
+
+    // Reverse to show latest first
+    transactions.value = data.reverse();
+  } catch (err) {
+    console.error(err);
   } finally {
     isTransactionLoading.value = false;
   }
 };
+
+
 const fetchExpenseCategories = async () => {
   try {
     loadingOptions.value = true;
@@ -267,7 +276,7 @@ watch(
   canFetchTransactions,
   (ready) => {
     if (ready) {
-      fetchTransactions();
+      fetchTransactions("EXPENSE")
     }
   },
   { immediate: true }
