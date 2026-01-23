@@ -2,25 +2,26 @@
   <div class="p-4 space-y-6 min-h-screen text-white">
 
     <!-- Cards Section -->
-<div class="flex gap-4 justify-center">
+<div class="flex gap-3 justify-center flex-wrap">
   <!-- Add Income Card -->
   <div
-    class="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-lg p-6 cursor-pointer shadow-md flex flex-col items-center justify-center transition transform hover:scale-105"
+    class="flex-1 max-w-[200px] bg-green-500 hover:bg-green-600 text-white rounded-lg p-3 cursor-pointer shadow flex flex-col items-center justify-center transition transform hover:scale-105"
     @click="openDialog('INCOME')"
   >
-    <i class="pi pi-money-bill text-4xl mb-2"></i>
-    <span class="font-semibold text-lg text-center">Add Income</span>
+    <i class="pi pi-money-bill text-3xl mb-1"></i>
+    <span class="font-medium text-sm text-center">Add Income</span>
   </div>
 
   <!-- Add Expense Card -->
   <div
-    class="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg p-6 cursor-pointer shadow-md flex flex-col items-center justify-center transition transform hover:scale-105"
+    class="flex-1 max-w-[200px] bg-red-500 hover:bg-red-600 text-white rounded-lg p-3 cursor-pointer shadow flex flex-col items-center justify-center transition transform hover:scale-105"
     @click="openDialog('EXPENSE')"
   >
-    <i class="pi pi-wallet text-4xl mb-2"></i>
-    <span class="font-semibold text-lg text-center">Add Expense</span>
+    <i class="pi pi-wallet text-3xl mb-1"></i>
+    <span class="font-medium text-sm text-center">Add Expense</span>
   </div>
 </div>
+
 
 
     <!-- Dialog Form -->
