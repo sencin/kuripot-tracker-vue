@@ -98,26 +98,56 @@
       </div>
 
     <!-- Transactions Table -->
-     <div v-else  class="w-full overflow-x-auto">
-     <DataTable :value="incomeTransactions" paginator:rows="5" stripedRows responsiveLayout="scroll">
-
-        <Column field="amount" header="Amount">
-          <template #body="{ data }">
-            ₱{{ Number(data.amount).toFixed(2) }}
-          </template>
-        </Column>
-
-        <Column field="description" header="Description" />
-
-        <Column field="paymentTypeName" header="Payment" />
-
-        <Column field="date" header="Date & Time">
-          <template #body="{ data }">
-            {{ data.date }} {{ formatTimeAMPM(data.time) }}
-          </template>
-        </Column>
-      </DataTable>
+     <div v-else class="space-y-3">
+  <div
+    v-for="tx in paginatedIncome"
+    :key="tx.id"
+    class="flex items-center justify-between p-3 sm:p-4 rounded-lg border border-gray-700 hover:border-gray-500 transition"
+  >
+    <!-- Left Icon -->
+    <div class="flex items-center flex-shrink-0">
+      <i class="pi pi-money-bill text-green-400 text-2xl sm:text-3xl"></i>
     </div>
+
+    <!-- Middle: Description & Date -->
+    <div class="flex-1 mx-4 flex flex-col">
+      <span class="font-semibold text-sm sm:text-base text-gray-100">
+        Income
+      </span>
+      <span class="text-xs sm:text-sm text-gray-400">
+        {{ tx.description || 'No description' }}
+      </span>
+      <span class="text-xs sm:text-sm text-gray-500">
+        {{ tx.date }} {{ formatTimeAMPM(tx.time) }}
+      </span>
+    </div>
+
+    <!-- Right: Amount -->
+    <div class="flex-shrink-0 font-semibold text-lg sm:text-xl text-green-400">
+      +₱{{ Number(tx.amount).toFixed(2) }}
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div v-if="totalIncomePages > 1" class="flex justify-center mt-4 gap-2">
+    <button
+      @click="prevIncomePage"
+      :disabled="incomePage === 1"
+      class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 transition"
+    >
+      Prev
+    </button>
+    <span class="px-2 py-1 text-gray-400">{{ incomePage }} / {{ totalIncomePages }}</span>
+    <button
+      @click="nextIncomePage"
+      :disabled="incomePage === totalIncomePages"
+      class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 transition"
+    >
+      Next
+    </button>
+  </div>
+</div>
+
   </div>
 </template>
 
@@ -175,6 +205,28 @@ const newTransaction = ref({
   expenseCategoryId: null,
   description: ""
 });
+
+const incomePage = ref(1);
+const rowsPerPage = 5;
+
+const totalIncomePages = computed(() =>
+  Math.ceil(incomeTransactions.value.length / rowsPerPage)
+);
+
+const paginatedIncome = computed(() =>
+  incomeTransactions.value.slice(
+    (incomePage.value - 1) * rowsPerPage,
+    incomePage.value * rowsPerPage
+  )
+);
+
+function prevIncomePage() {
+  if (incomePage.value > 1) incomePage.value--;
+}
+
+function nextIncomePage() {
+  if (incomePage.value < totalIncomePages.value) incomePage.value++;
+}
 
 const paymentTypeOptions = ref<Option[]>([]);
 

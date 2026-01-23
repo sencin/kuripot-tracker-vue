@@ -106,35 +106,61 @@
       </div>
 
     <!-- Transactions Table -->
-     <div v-else  class="w-full overflow-x-auto">
-      <DataTable
-        :value="expenseTransactions"
-        paginator
-        :rows="5"
-        :rowsPerPageOptions="[5, 10, 20, 50]"
-        stripedRows
-        responsiveLayout="scroll"
-        class="min-w-[24rem] sm:min-w-[60rem]"
-      >
-        <Column field="expenseCategoryName" header="Category" />
-
-        <Column field="amount" header="Amount">
-          <template #body="{ data }">
-            ₱{{ Number(data.amount).toFixed(2) }}
-          </template>
-        </Column>
-
-        <Column field="description" header="Description" />
-
-        <Column field="paymentTypeName" header="Payment" />
-
-        <Column field="date" header="Date & Time">
-          <template #body="{ data }">
-            {{ data.date }} {{ formatTimeAMPM(data.time) }}
-          </template>
-        </Column>
-      </DataTable>
+    <div v-else class="space-y-3">
+  <div
+    v-for="tx in paginatedTransactions"
+    :key="tx.id"
+    class="flex items-center justify-between p-3 sm:p-4 rounded-lg border border-gray-700 hover:border-gray-500 transition"
+  >
+    <!-- Left: Category Icon -->
+    <div class="flex items-center flex-shrink-0">
+      <i
+        :class="tx.type === 'INCOME' ? 'pi pi-money-bill text-green-400 text-2xl sm:text-3xl' : 'pi pi-wallet text-red-400 text-2xl sm:text-3xl'"
+      ></i>
     </div>
+
+    <!-- Middle: Category & Description -->
+    <div class="flex-1 mx-4 flex flex-col">
+      <span class="font-semibold text-sm sm:text-base text-gray-100">
+        {{ tx.type === 'INCOME' ? 'Income' : tx.expenseCategoryName || 'Expense' }}
+      </span>
+      <span class="text-xs sm:text-sm text-gray-400">
+        {{ tx.description || 'No description' }}
+      </span>
+      <span class="text-xs sm:text-sm text-gray-500">
+        {{ tx.date }} {{ formatTimeAMPM(tx.time) }}
+      </span>
+    </div>
+
+    <!-- Right: Amount -->
+    <div
+      class="flex-shrink-0 font-semibold text-lg sm:text-xl"
+      :class="tx.type === 'INCOME' ? 'text-green-400' : 'text-red-400'"
+    >
+      {{ tx.type === 'INCOME' ? '+' : '-' }}₱{{ Number(tx.amount).toFixed(2) }}
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div v-if="totalPages > 1" class="flex justify-center mt-4 gap-2">
+    <button
+      @click="prevPage"
+      :disabled="currentPage === 1"
+      class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 transition"
+    >
+      Prev
+    </button>
+    <span class="px-2 py-1 text-gray-400">{{ currentPage }} / {{ totalPages }}</span>
+    <button
+      @click="nextPage"
+      :disabled="currentPage === totalPages"
+      class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 transition"
+    >
+      Next
+    </button>
+  </div>
+</div>
+
   </div>
 </template>
 
@@ -187,6 +213,30 @@ const apiBaseUrl: string = import.meta.env.VITE_RESTAPI_URL;
 const expenseTransactions = computed(() =>
   transactions.value.filter(t => t.type === "EXPENSE")
 );
+
+
+
+const currentPage = ref(1);
+const rowsPerPage = 5;
+
+const totalPages = computed(() =>
+  Math.ceil(expenseTransactions.value.length / rowsPerPage)
+);
+
+const paginatedTransactions = computed(() =>
+  expenseTransactions.value.slice(
+    (currentPage.value - 1) * rowsPerPage,
+    currentPage.value * rowsPerPage
+  )
+);
+
+function prevPage() {
+  if (currentPage.value > 1) currentPage.value--;
+}
+
+function nextPage() {
+  if (currentPage.value < totalPages.value) currentPage.value++;
+}
 
 const newTransaction = ref({
   type: "EXPENSE",
