@@ -23,7 +23,11 @@
 </div>
 
 
-
+<div class="flex items-center justify-between mt-2">
+  <h2 class="text-sm font-semibold text-gray-300 tracking-wide">
+    Last Added Transactions
+  </h2>
+</div>
     <!-- Dialog Form -->
     <Dialog
       v-model:visible="visible"
