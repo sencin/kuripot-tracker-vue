@@ -47,7 +47,7 @@ const authMenu: MenuSection[] = [
     title: 'Main Menu',
     key: 'Main',
     items: [
-      { label: 'Dashboard', icon: 'pi pi-home', to: '/' },
+      { label: 'Dashboard', icon: 'pi pi-home', to: '/home' },
       { label: 'Overview', icon: 'pi pi-chart-bar', to: '/overview' },
       {
         label: 'Record',
