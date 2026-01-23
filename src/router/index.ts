@@ -11,6 +11,7 @@ import DashboardLayout from '@/components/DashboardLayout.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import AddTransactionView from '@/views/AddTransactionView.vue';
 import TransactionsView from '@/views/TransactionsView.vue';
+import VerifyOtp from '@/views/VerifyOtp.vue';
 
 const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean } }> = [
   {
@@ -78,6 +79,12 @@ const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean 
     path: '/register',
     component: Register,
     name: 'register',
+    meta: { guest: true },
+  },
+    {
+    path: '/verify-otp',
+    component: VerifyOtp,
+    name: 'verifyotp',
     meta: { guest: true },
   },
   {
