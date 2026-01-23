@@ -2,12 +2,12 @@
   <div class="p-2 flex flex-col items-center gap-4">
     <!-- Open Dialog Button -->
        <div class="flex justify-start w-full">
-      <Button
+      <!-- <Button
         label="Add Income"
         icon="pi pi-plus"
         @click="visible = true"
         class="p-button-sm p-button-info justify-start w-full sm:w-auto"
-      />
+      /> -->
     </div>
 
     <!-- Expense Dialog -->
