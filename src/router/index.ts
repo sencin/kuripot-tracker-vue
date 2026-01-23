@@ -7,13 +7,47 @@ import Login from '@/views/LoginView.vue';
 import Register from '@/views/RegisterView.vue';
 import AboutView from '@/views/AboutView.vue';
 import { useAuthStore } from '@/stores/authenticate';
+import DashboardLayout from '@/components/DashboardLayout.vue';
+import ProfileView from '@/views/ProfileView.vue';
+import AddTransactionView from '@/views/AddTransactionView.vue';
+import TransactionsView from '@/views/TransactionsView.vue';
 
 const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean } }> = [
   {
     path: '/',
-    component: Dashboard,
-    name: 'dashboard',
+    component: DashboardLayout,
     meta: { auth: true },
+    children: [
+      {
+        path: '',
+        redirect: 'home', 
+      },
+      {
+        path: 'home',
+        name: 'Home',
+        component: Dashboard,
+      },
+      {
+        path: 'transactions',
+        name: 'Transactions',
+        component: TransactionsView,
+      },
+      {
+        path: 'add-transaction',
+        name: 'AddTransaction',
+        component: AddTransactionView,
+      },
+      {
+        path: 'analytics',
+        name: 'Analytics',
+        component: OverView,
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileView,
+      },
+    ],
   },
   {
     path: '/record/income',
