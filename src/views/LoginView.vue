@@ -67,7 +67,7 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value
     })
-    await router.push({ name: "dashboard" })
+    await router.push({ name: "Home" })
   } catch (error) {
     console.error("Login failed:", error)
   } finally {
