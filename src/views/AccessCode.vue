@@ -59,8 +59,6 @@ const verifyCode = async (): Promise<void> => {
   try {
     const res = await HTTPRequest.post<DevAccessResponse>('/api/auth/dev-access', { code: accessCode.value })
 
-    console.log(res)
-
     if (res.status === 200) {
       sessionStorage.setItem('devAccess', 'true')
       router.push('/register')
