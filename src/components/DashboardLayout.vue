@@ -1,4 +1,9 @@
 <template>
+    <header>
+      <nav>
+        <AppNavbar />
+      </nav>
+  </header>
   <div class="dashboard-layout min-h-screen text-white pb-28">
     <!-- Page content -->
     <router-view class="p-4" />
@@ -37,7 +42,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-
+import AppNavbar from '@/components/AppNavbar.vue'
 const route = useRoute();
 
 // activeTab now always reflects the current route

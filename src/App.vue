@@ -22,12 +22,7 @@ import Toast from 'primevue/toast';
     </div>
   </div>
 
-  <div class="min-h-screen px-4 sm:px-6 lg:px-8 py-4 flex flex-col">
-  <header>
-      <nav>
-        <AppNavbar />
-      </nav>
-  </header>
+  <div class="min-h-screen px-4 sm:px-6 lg:px-8 py-4 flex flex-col bg-gray-950">
   <RouterView />
   </div>
 </template>
