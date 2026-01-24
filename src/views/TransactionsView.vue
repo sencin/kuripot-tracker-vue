@@ -3,15 +3,7 @@
     <div
       class="flex flex-col sm:flex-row gap-4"
     >
-      <!-- Income Section -->
-      <div class="flex-1  rounded-lg shadow-md p-4 sm:p-6 overflow-auto">
-        <IncomeView v-model:visible="incomeVisible" />
-      </div>
-
-      <!-- Expense Section -->
-      <div class="flex-1  rounded-lg shadow-md p-4 sm:p-6 overflow-auto">
-        <ExpenseView v-model:visible="expenseVisible" />
-      </div>
+    <p>Still in development wuwuwuwuw</p>
     </div>
   </div>
 </template>
