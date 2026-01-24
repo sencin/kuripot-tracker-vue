@@ -235,7 +235,8 @@ const openDialog = (t: 'EXPENSE' | 'INCOME') => {
 const fetchPaymentTypes = async () => {
   loadingOptions.value = true;
   try {
-    paymentTypeOptions.value = await HTTPRequest.get('/api/payment-types', authStore.token);
+    const res = await HTTPRequest.get<Option[]>('/api/payment-types', authStore.token);
+    paymentTypeOptions.value = res.data
   } catch (err) { console.error(err); }
   loadingOptions.value = false;
 };
@@ -243,7 +244,8 @@ const fetchPaymentTypes = async () => {
 const fetchExpenseCategories = async () => {
   loadingOptions.value = true;
   try {
-    expenseCategoryOptions.value = await HTTPRequest.get('/api/expense-categories', authStore.token);
+    const res = await HTTPRequest.get<Option[]>('/api/expense-categories', authStore.token)
+    expenseCategoryOptions.value = res.data
   } catch (err) { console.error(err); }
   loadingOptions.value = false;
 };
@@ -251,8 +253,8 @@ const fetchExpenseCategories = async () => {
 const fetchTransactions = async () => {
   isTransactionLoading.value = true;
   try {
-    const data = await HTTPRequest.get<Transaction[]>('/api/transactions/me', authStore.token);
-    transactions.value = data.reverse();
+    const res = await HTTPRequest.get<Transaction[]>('/api/transactions/me', authStore.token);
+    transactions.value = res.data.reverse();
   } catch (err) {
     console.error(err);
   } finally {
@@ -295,8 +297,8 @@ const createTransaction = async () => {
 
   loading.value = true;
   try {
-    const data = await HTTPRequest.post<{ transaction: Transaction }>('/api/transactions', authStore.token, newTransaction.value);
-    transactions.value.unshift(data.transaction);
+    const res = await HTTPRequest.post<{ transaction: Transaction }>('/api/transactions', newTransaction.value, authStore.token);
+    transactions.value.unshift(res.data.transaction);
     toast.add({ severity:'success', summary:'Success', detail: `${type.value} Recorded`, life:3000 });
     // Reset
     newTransaction.value = { type:type.value, amount:null, date:'', time:'', paymentTypeId:0, expenseCategoryId:null, description:'' };

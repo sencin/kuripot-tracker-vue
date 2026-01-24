@@ -1,54 +1,37 @@
+// /utils/HTTPRequest.ts
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios'
+
 const apiBaseUrl = import.meta.env.VITE_RESTAPI_URL
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
+// Generic request function returning full AxiosResponse
 async function request<T>(
-  path: string,       // only the endpoint, not full URL
+  path: string,
   method: HttpMethod,
-  token?: string,
-  body?: unknown
-): Promise<T> {
-  const url = `${apiBaseUrl}${path}`
-
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  }
-
-  const res = await fetch(url, {
+  body?: unknown,
+  token?: string
+): Promise<AxiosResponse<T>> {
+  const config: AxiosRequestConfig = {
     method,
-    credentials: 'include',
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`HTTP ${res.status}: ${text}`)
+    url: `${apiBaseUrl}${path}`, // prepend base URL
+    data: body,
+    withCredentials: true, // send cookies
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
   }
 
-  return res.status === 204 ? null as T : res.json()
+  return axios(config)
 }
 
+// CRUD helpers returning full response
 export const HTTPRequest = {
-  get<T>(path: string, token?: string) {
-    return request<T>(path, 'GET', token)
-  },
-
-  post<T>(path: string, token?: string, body?: unknown) {
-    return request<T>(path, 'POST', token, body)
-  },
-
-  put<T>(path: string, token?: string, body?: unknown) {
-    return request<T>(path, 'PUT', token, body)
-  },
-
-  patch<T>(path: string, token?: string, body?: unknown) {
-    return request<T>(path, 'PATCH', token, body)
-  },
-
-  delete<T>(path: string, token?: string) {
-    return request<T>(path, 'DELETE', token)
-  },
+  get: <T>(path: string, token?: string) => request<T>(path, 'GET', undefined, token),
+  post: <T>(path: string, body?: unknown, token?: string) => request<T>(path, 'POST', body, token),
+  put: <T>(path: string, body?: unknown, token?: string) => request<T>(path, 'PUT', body, token),
+  patch: <T>(path: string, body?: unknown, token?: string) => request<T>(path, 'PATCH', body, token),
+  delete: <T>(path: string, token?: string) => request<T>(path, 'DELETE', undefined, token),
 }

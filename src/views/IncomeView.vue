@@ -255,7 +255,8 @@ const canFetchTransactions = computed(() => !!authStore.token);
 const fetchPaymentTypes = async () => {
   try {
     loadingOptions.value = true;
-    paymentTypeOptions.value = await HTTPRequest.get('/api/payment-types', authStore.token)
+    const res = await HTTPRequest.get<Option[]>('/api/payment-types', authStore.token);
+    paymentTypeOptions.value = res.data; 
   } catch (err) {
     console.error(err);
   } finally {
@@ -271,10 +272,10 @@ const fetchTransactions = async (type?: "INCOME" | "EXPENSE") => {
     if (type) url += `?type=${type}`;
 
     // Fetch transactions using JWT only
-    const data = await HTTPRequest.get<Transaction[]>(url, authStore.token);
+    const res = await HTTPRequest.get<Transaction[]>(url, authStore.token);
 
     // Reverse to show latest first
-    transactions.value = data.reverse();
+    transactions.value = res.data.reverse();
   } catch (err) {
     console.error(err);
   } finally {
@@ -320,13 +321,10 @@ const createTransaction = async () => {
   try {
     loading.value = true;
 
-    const data = await HTTPRequest.post<CreateExpenseResponse>(
-      "/api/transactions",
-      authStore.token,
-      payload
+    const res = await HTTPRequest.post<CreateExpenseResponse>("/api/transactions", payload, authStore.token,
     );
 
-    transactions.value.unshift(data.transaction);
+    transactions.value.unshift(res.data.transaction);
 
     toast.add({
       severity: "success",

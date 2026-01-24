@@ -85,16 +85,13 @@ const verifyOtp = async (): Promise<void> => {
   loading.value = true
 
   try {
-    const response = await HTTPRequest.post<{ message: string }>(
-      '/api/auth/verify-otp',
-      undefined, // no token
-      {
+     const response = await HTTPRequest.post<{ message: string }>('/api/auth/verify-otp',{   
         email: email.value,
         otp: otp.value
       }
     )
 
-    alert(response.message || 'OTP verified successfully!')
+    alert(response.data.message || 'OTP verified successfully!')
 
     router.push('/login')
 

@@ -12,6 +12,7 @@ import ProfileView from '@/views/ProfileView.vue';
 import AddTransactionView from '@/views/AddTransactionView.vue';
 import TransactionsView from '@/views/TransactionsView.vue';
 import VerifyOtp from '@/views/VerifyOtp.vue';
+import AccessCode from '@/views/AccessCode.vue';
 
 const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean } }> = [
   {
@@ -79,14 +80,21 @@ const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean 
     path: '/register',
     component: Register,
     name: 'register',
-    meta: { guest: true },
+    // meta: { guest: true },
+    meta: { requiresAccess: true }, // delete this also and uncommment the meta above
   },
-    {
+  {
     path: '/verify-otp',
     component: VerifyOtp,
     name: 'verifyotp',
     meta: { guest: true },
   },
+    {
+    path: '/access-code',
+    component: AccessCode,
+    name: 'access-code',
+    meta: { guest: true },
+  }, // Delete this access code also
   {
     path: '/about',
     component: AboutView,
@@ -116,6 +124,15 @@ router.beforeEach(async (to) => {
     console.log("Auth required and user is not authenticated. Redirecting to login.");
     return { name: "login" };
   }
+
+  // delete this when development of website is good enoguht . this is just to avoid unwanted registration
+if (to.meta.requiresAccess) {
+  const hasAccess = sessionStorage.getItem('devAccess') === 'true'
+  if (!hasAccess) {
+    return { name: 'access-code' }
+  }
+}
+
 });
 
 export default router;

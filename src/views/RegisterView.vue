@@ -158,7 +158,7 @@ const register = async (): Promise<void> => {
 
   try {
 
-    await HTTPRequest.post('/api/auth/register', undefined, payload)
+    await HTTPRequest.post('/api/auth/register', payload, undefined)
 
     // Save the registered email for OTP verification
     localStorage.setItem('registeredEmail', payload.email)
