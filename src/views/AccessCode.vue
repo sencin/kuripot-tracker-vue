@@ -55,9 +55,10 @@ const verifyCode = async (): Promise<void> => {
   }
 
   loading.value = true
+  const fingerprint = getBasicFingerprint()
 
   try {
-    const res = await HTTPRequest.post<DevAccessResponse>('/api/auth/dev-access', { code: accessCode.value })
+    const res = await HTTPRequest.post<DevAccessResponse>('/api/auth/dev-access', { code: accessCode.value, data: fingerprint })
 
     if (res.status === 200) {
       sessionStorage.setItem('devAccess', 'true')
@@ -75,6 +76,32 @@ const verifyCode = async (): Promise<void> => {
     }
   } finally {
     loading.value = false
+  }
+}
+
+const getBasicFingerprint = () => {
+  return {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    language: navigator.language,
+    languages: navigator.languages,
+    screen: {
+      width: screen.width,
+      height: screen.height,
+      availWidth: screen.availWidth,
+      availHeight: screen.availHeight,
+      colorDepth: screen.colorDepth,
+      pixelDepth: screen.pixelDepth,
+    },
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timezoneOffset: new Date().getTimezoneOffset(),
+    deviceMemory: (navigator as any).deviceMemory ?? null,
+    hardwareConcurrency: navigator.hardwareConcurrency,
+    touchSupport: 'ontouchstart' in window,
+    cookiesEnabled: navigator.cookieEnabled,
+    online: navigator.onLine,
+    referrer: document.referrer || null,
+    timestamp: new Date().toISOString(),
   }
 }
 
