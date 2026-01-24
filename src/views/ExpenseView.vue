@@ -1,168 +1,117 @@
 <template>
-  <div class="p-2 flex flex-col items-center gap-4">
-    <!-- Open Dialog Button -->
-       <div class="flex justify-start w-full">
-      <!-- <Button
-        label="Add Expense"
-        icon="pi pi-plus"
-        @click="visible = true"
-        class="p-button-sm p-button-info justify-start w-full sm:w-auto"
-      /> -->
-    </div>
-
-    <!-- Expense Dialog -->
-    <Dialog
-      v-model:visible="visible"
-      pt:root:class="!border-0 !bg-transparent"
-      pt:mask:class="backdrop-blur-sm"
-      :modal="true"
-      :closable="false"
-      :style="{ width: '90%', maxWidth: '24rem' }"
-    >
-      <template #container="{ closeCallback }">
-        <div
-          class="flex flex-col px-4 py-4 gap-3 rounded-xl"
-          style="background-image: radial-gradient(circle at left top, var(--p-primary-700), var(--p-primary-900))"
-        >
-          <!-- Form Fields -->
-          <div class="flex flex-col gap-3 text-sm">
-            <p>Generate New Expense</p>
-            <InputNumber
-              v-model="newTransaction.amount"
-              mode="currency"
-              placeholder="Amount"
-              currency="PHP"
-              class="!p-0 !h-auto !text-white !border-0"
-            />
-              <DatePicker
-                v-model="selectedDate"
-                inputId="income-date"
-                showIcon
-                placeholder="Date"
-                iconDisplay="input"
-                fluid
-                 class="!p-0 !h-auto !text-black !border-0"
-              />
-        
-              <DatePicker
-                v-model="selectedTime"
-                inputId="income-time"
-                timeOnly
-                placeholder="Time"
-                hourFormat="12"
-                fluid
-                 class="!p-0 !h-auto !text-black !border-0"
-              />
-            <Dropdown
-              v-model="newTransaction.paymentTypeId"
-              :options="paymentTypeOptions"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Payment Type"
-              class="w-full"
-              :loading="loadingOptions"
-            />
-
-            <Dropdown
-              v-model="newTransaction.expenseCategoryId"
-              :options="expenseCategoryOptions"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Expense Category"
-              class="w-full"
-              :loading="loadingOptions"
-            />
-
-            <InputText
-              v-model="newTransaction.description"
-              placeholder="Description"
-              size="large"
-              class="!p-2  !border-0 !text-white w-full"
-            />
-          </div>
-
-          <!-- Buttons -->
-          <div class="flex flex-col gap-2 mt-3 sm:flex-row">
-            <Button
-              label="Cancel"
-              class="w-full sm:w-1/2 p-button-secondary"
-              @click="closeCallback"
-            />
-            <Button
-              label="Save"
-              icon="pi pi-sign-in"
-              :loading="loading"
-              class="w-full sm:w-1/2 p-button-success"
-              @click="createTransaction"
-            />
-          </div>
-        </div>
-      </template>
-    </Dialog>
-
-    
-      <div v-if="isTransactionLoading" class="text-sm text-gray-400">
-        Fetching data from server...
-      </div>
-
-    <!-- Transactions Table -->
-    <div v-else class="space-y-3">
   <div
-    v-for="tx in paginatedTransactions"
-    :key="tx.id"
-    class="flex items-center justify-between p-3 sm:p-4 rounded-lg border border-gray-700 hover:border-gray-500 transition"
+    class="min-h-screen flex items-center justify-center"
   >
-    <!-- Left: Category Icon -->
-    <div class="flex items-center flex-shrink-0">
-      <i
-        :class="tx.type === 'INCOME' ? 'pi pi-money-bill text-green-400 text-2xl sm:text-3xl' : 'pi pi-wallet text-red-400 text-2xl sm:text-3xl'"
-      ></i>
+    <!-- Form Container -->
+    <div class="w-full max-w-md sm:max-w-lg">
+      
+      <!-- Expense Card -->
+      <div class="relative rounded-xl space-y-4 sm:p-6  shadow-md sm:shadow-xl">
+
+        <!-- Back Button -->
+        <button
+          @click="goBack"
+          class="absolute top-3 left-3 flex items-center gap-1
+                 text-xs sm:text-sm text-gray-200 hover:text-white z-10"
+        >
+          <i class="pi pi-arrow-left"></i>
+          Back
+        </button>
+
+        <!-- Card Content with top padding so button doesn't overlap -->
+        <div class="pt-6 space-y-4">
+          <p class="text-sm font-semibold text-gray-100 text-center sm:text-left">
+            Generate New Expense
+          </p>
+
+          <!-- Amount -->
+          <InputNumber
+            v-model="newTransaction.amount"
+            mode="currency"
+            placeholder="Amount"
+            currency="PHP"
+            class="!border-0"
+          />
+
+          <!-- Inline Date -->
+          <div class="flex justify-center">
+            <DatePicker
+              v-model="selectedDate"
+              inline
+              class="w-full sm:w-[18rem]"
+            />
+          </div>
+
+          <!-- Time -->
+          <DatePicker
+            v-model="selectedTime"
+            timeOnly
+            hourFormat="12"
+            placeholder="Time"
+            fluid
+          />
+
+          <!-- Payment Method -->
+          <div class="flex flex-col gap-2">
+            <label class="text-xs text-gray-400">Payment Method</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="opt in paymentTypeOptions"
+                :key="opt.id"
+                type="button"
+                @click="newTransaction.paymentTypeId = opt.id"
+                class="flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm transition"
+                :class="newTransaction.paymentTypeId === opt.id
+                  ? 'border-red-500 text-red-400 bg-red-500/10'
+                  : 'border-gray-700 text-gray-300 hover:border-gray-500'"
+              >
+                <i class="pi pi-wallet text-sm" />
+                {{ opt.name }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Expense Category -->
+          <div class="flex flex-col gap-2">
+            <label class="text-xs text-gray-400">Expense Category</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="cat in expenseCategoryOptions"
+                :key="cat.id"
+                type="button"
+                @click="newTransaction.expenseCategoryId = cat.id"
+                class="flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm transition"
+                :class="newTransaction.expenseCategoryId === cat.id
+                  ? 'border-red-500 text-red-400 bg-red-500/10'
+                  : 'border-gray-700 text-gray-300 hover:border-gray-500'"
+              >
+                <i class="pi pi-tag text-sm" />
+                {{ cat.name }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <InputText
+            v-model="newTransaction.description"
+            placeholder="Description"
+            class="!border-0"
+          />
+
+          <!-- Action -->
+          <Button
+            label="Save Expense"
+            icon="pi pi-check"
+            :loading="loading"
+            class="w-full p-button-danger mt-2"
+            @click="createTransaction"
+          />
+        </div>
+      </div>
     </div>
-
-    <!-- Middle: Category & Description -->
-    <div class="flex-1 mx-4 flex flex-col">
-      <span class="font-semibold text-sm sm:text-base text-gray-100">
-        {{ tx.type === 'INCOME' ? 'Income' : tx.expenseCategoryName || 'Expense' }}
-      </span>
-      <span class="text-xs sm:text-sm text-gray-400">
-        {{ tx.description || 'No description' }}
-      </span>
-      <span class="text-xs sm:text-sm text-gray-500">
-        {{ tx.date }} {{ formatTimeAMPM(tx.time) }}
-      </span>
-    </div>
-
-    <!-- Right: Amount -->
-    <div
-      class="flex-shrink-0 font-semibold text-lg sm:text-xl"
-      :class="tx.type === 'INCOME' ? 'text-green-400' : 'text-red-400'"
-    >
-      {{ tx.type === 'INCOME' ? '+' : '-' }}₱{{ Number(tx.amount).toFixed(2) }}
-    </div>
-  </div>
-
-  <!-- Pagination -->
-  <div v-if="totalPages > 1" class="flex justify-center mt-4 gap-2">
-    <button
-      @click="prevPage"
-      :disabled="currentPage === 1"
-      class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 transition"
-    >
-      Prev
-    </button>
-    <span class="px-2 py-1 text-gray-400">{{ currentPage }} / {{ totalPages }}</span>
-    <button
-      @click="nextPage"
-      :disabled="currentPage === totalPages"
-      class="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 disabled:opacity-50 transition"
-    >
-      Next
-    </button>
-  </div>
-</div>
-
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
@@ -180,7 +129,15 @@ import { useAuthStore } from "@/stores/authenticate";
 import { HTTPRequest } from '@/utils/HTTPRequest'
 
 import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+
 const toast = useToast();
+
+
+const goBack = () => router.back()
 
 interface Transaction {
   id: number;
@@ -378,6 +335,9 @@ const createTransaction = async () => {
     selectedDate.value = null;
     selectedTime.value = null;
     visible.value = false;
+
+    router.push({ name: 'AddTransaction' })
+
 
   } catch (err: unknown) {
     console.error(err);
