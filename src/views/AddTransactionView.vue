@@ -1,124 +1,41 @@
 <template>
   <div class="p-4 space-y-6 min-h-screen text-white">
+    <div class="flex gap-3 justify-center flex-wrap">
+      <!-- Add Income Card -->
+      <div
+        class="flex-1 max-w-[200px]
+              bg-green-500 hover:bg-green-600
+              text-white rounded-lg p-3
+              cursor-pointer shadow
+              flex flex-col items-center justify-center
+              transition transform hover:scale-105"
+        @click="goToIncome"
+      >
+        <i class="pi pi-money-bill text-3xl mb-1"></i>
+        <span class="font-medium text-sm text-center">Add Income</span>
+      </div>
 
-    <!-- Cards Section -->
-<div class="flex gap-3 justify-center flex-wrap">
-  <!-- Add Income Card -->
-  <div
-    class="flex-1 max-w-[200px] bg-green-500 hover:bg-green-600 text-white rounded-lg p-3 cursor-pointer shadow flex flex-col items-center justify-center transition transform hover:scale-105"
-    @click="openDialog('INCOME')"
-  >
-    <i class="pi pi-money-bill text-3xl mb-1"></i>
-    <span class="font-medium text-sm text-center">Add Income</span>
+      <!-- Add Expense Card -->
+      <div
+        class="flex-1 max-w-[200px]
+              bg-red-500 hover:bg-red-600
+              text-white rounded-lg p-3
+              cursor-pointer shadow
+              flex flex-col items-center justify-center
+              transition transform hover:scale-105"
+        @click="goToExpense"
+      >
+        <i class="pi pi-wallet text-3xl mb-1"></i>
+        <span class="font-medium text-sm text-center">Add Expense</span>
+      </div>
+    </div>
+
+
+  <div class="flex items-center justify-between mt-2">
+    <h2 class="text-sm font-semibold text-gray-300 tracking-wide">
+      Last Added Transactions
+    </h2>
   </div>
-
-  <!-- Add Expense Card -->
-  <div
-    class="flex-1 max-w-[200px] bg-red-500 hover:bg-red-600 text-white rounded-lg p-3 cursor-pointer shadow flex flex-col items-center justify-center transition transform hover:scale-105"
-    @click="openDialog('EXPENSE')"
-  >
-    <i class="pi pi-wallet text-3xl mb-1"></i>
-    <span class="font-medium text-sm text-center">Add Expense</span>
-  </div>
-</div>
-
-
-<div class="flex items-center justify-between mt-2">
-  <h2 class="text-sm font-semibold text-gray-300 tracking-wide">
-    Last Added Transactions
-  </h2>
-</div>
-    <!-- Dialog Form -->
-    <Dialog
-      v-model:visible="visible"
-      pt:root:class="!border-0 !bg-transparent"
-      pt:mask:class="backdrop-blur-sm"
-      :modal="true"
-      :closable="false"
-      :style="{ width: '90%', maxWidth: '24rem' }"
-    >
-      <template #container="{ closeCallback }">
-        <div
-          class="flex flex-col px-4 py-4 gap-3 rounded-xl"
-          :style="dialogBg"
-        >
-          <div class="flex flex-col gap-3 text-sm">
-            <p>Generate New {{ type === 'EXPENSE' ? 'Expense' : 'Income' }}</p>
-
-            <InputNumber
-              v-model="newTransaction.amount"
-              mode="currency"
-              placeholder="Amount"
-              currency="PHP"
-              class="!p-0 !h-auto !text-white !border-0"
-            />
-
-            <DatePicker
-              v-model="selectedDate"
-              inputId="transaction-date"
-              showIcon
-              placeholder="Date"
-              iconDisplay="input"
-              fluid
-              class="!p-0 !h-auto !text-black !border-0"
-            />
-
-            <DatePicker
-              v-model="selectedTime"
-              inputId="transaction-time"
-              timeOnly
-              placeholder="Time"
-              hourFormat="12"
-              fluid
-              class="!p-0 !h-auto !text-black !border-0"
-            />
-
-            <Dropdown
-              v-model="newTransaction.paymentTypeId"
-              :options="paymentTypeOptions"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Payment Type"
-              class="w-full"
-              :loading="loadingOptions"
-            />
-
-            <Dropdown
-              v-if="type === 'EXPENSE'"
-              v-model="newTransaction.expenseCategoryId"
-              :options="expenseCategoryOptions"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Expense Category"
-              class="w-full"
-              :loading="loadingOptions"
-            />
-
-            <InputText
-              v-model="newTransaction.description"
-              placeholder="Description"
-              size="large"
-              class="!p-2 !border-0 !text-white w-full"
-            />
-          </div>
-
-          <div class="flex flex-col gap-2 mt-3 sm:flex-row">
-            <Button
-              label="Cancel"
-              class="w-full sm:w-1/2 p-button-secondary"
-              @click="closeCallback"
-            />
-            <Button
-              label="Save"
-              icon="pi pi-sign-in"
-              :loading="loading"
-              class="w-full sm:w-1/2 p-button-success"
-              @click="createTransaction"
-            />
-          </div>
-        </div>
-      </template>
-    </Dialog>
 
     <!-- Transactions Table -->
     <div v-if="isTransactionLoading" class="text-sm text-gray-400">
@@ -159,23 +76,16 @@
 
 
     </div>
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import InputNumber from 'primevue/inputnumber';
-import InputText from 'primevue/inputtext';
-import Dropdown from 'primevue/dropdown';
-import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
-import DatePicker from 'primevue/datepicker';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
+
 import { useToast } from 'primevue/usetoast';
 import { useAuthStore } from '@/stores/authenticate';
 import { HTTPRequest } from '@/utils/HTTPRequest';
+import { useRouter } from 'vue-router'
 
 const toast = useToast();
 const authStore = useAuthStore();
@@ -211,44 +121,21 @@ const newTransaction = ref({
   description: ''
 });
 
-const paymentTypeOptions = ref<Option[]>([]);
-const expenseCategoryOptions = ref<Option[]>([]);
+
+const router = useRouter()
+
+const goToIncome = () => {
+  router.push({ name: 'income' })  
+}
+
+const goToExpense = () => {
+  router.push({ name: 'expenses' })
+}
 
 const lastTransactions = computed(() =>
   transactions.value.slice(0, 10) // take the first 10 items
 );
 
-
-const dialogBg = computed(() => ({
-  backgroundImage:
-    type.value === 'EXPENSE'
-      ? 'radial-gradient(circle at left top, var(--p-red-500), var(--p-red-700))'
-      : 'radial-gradient(circle at left top, var(--p-green-500), var(--p-green-700))'
-}));
-
-const openDialog = (t: 'EXPENSE' | 'INCOME') => {
-  type.value = t;
-  newTransaction.value.type = t;
-  visible.value = true;
-};
-
-const fetchPaymentTypes = async () => {
-  loadingOptions.value = true;
-  try {
-    const res = await HTTPRequest.get<Option[]>('/api/payment-types', authStore.token);
-    paymentTypeOptions.value = res.data
-  } catch (err) { console.error(err); }
-  loadingOptions.value = false;
-};
-
-const fetchExpenseCategories = async () => {
-  loadingOptions.value = true;
-  try {
-    const res = await HTTPRequest.get<Option[]>('/api/expense-categories', authStore.token)
-    expenseCategoryOptions.value = res.data
-  } catch (err) { console.error(err); }
-  loadingOptions.value = false;
-};
 
 const fetchTransactions = async () => {
   isTransactionLoading.value = true;
@@ -262,10 +149,7 @@ const fetchTransactions = async () => {
   }
 };
 
-
 onMounted(() => {
-  fetchPaymentTypes();
-  fetchExpenseCategories();
   fetchTransactions();
 });
 
@@ -284,32 +168,6 @@ const formatTimeAMPM = (time?: string) => {
   const period = h >= 12 ? 'PM' : 'AM';
 
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
-};
-
-const createTransaction = async () => {
-  if (!selectedDate.value || !selectedTime.value) return;
-
-  const d = selectedDate.value;
-  const t = selectedTime.value;
-
-  newTransaction.value.date = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  newTransaction.value.time = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}:00`;
-
-  loading.value = true;
-  try {
-    const res = await HTTPRequest.post<{ transaction: Transaction }>('/api/transactions', newTransaction.value, authStore.token);
-    transactions.value.unshift(res.data.transaction);
-    toast.add({ severity:'success', summary:'Success', detail: `${type.value} Recorded`, life:3000 });
-    // Reset
-    newTransaction.value = { type:type.value, amount:null, date:'', time:'', paymentTypeId:0, expenseCategoryId:null, description:'' };
-    selectedDate.value = null;
-    selectedTime.value = null;
-    visible.value = false;
-  } catch (err) {
-    console.error(err);
-    toast.add({ severity:'error', summary:'Error', detail:(err as Error).message || 'Failed', life:3000 });
-  }
-  loading.value = false;
 };
 </script>
 
