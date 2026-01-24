@@ -80,8 +80,8 @@ const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean 
     path: '/register',
     component: Register,
     name: 'register',
-    // meta: { guest: true },
-    meta: { requiresAccess: true }, // delete this also and uncommment the meta above
+    meta: { guest: true },
+    // meta: { requiresAccess: true }, // delete this also and uncommment the meta above
   },
   {
     path: '/verify-otp',
@@ -126,12 +126,12 @@ router.beforeEach(async (to) => {
   }
 
   // delete this when development of website is good enoguht . this is just to avoid unwanted registration
-if (to.meta.requiresAccess) {
-  const hasAccess = sessionStorage.getItem('devAccess') === 'true'
-  if (!hasAccess) {
-    return { name: 'access-code' }
-  }
-}
+// if (to.meta.requiresAccess) {
+//   const hasAccess = sessionStorage.getItem('devAccess') === 'true'
+//   if (!hasAccess) {
+//     return { name: 'access-code' }
+//   }
+// }
 
 });
 

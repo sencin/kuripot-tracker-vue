@@ -1,4 +1,10 @@
 <template>
+   <header>
+      <nav>
+        <AppNavbar />
+      </nav>
+  </header>
+
   <div class="min-h-screen flex items-center justify-center px-4 ">
     <div class="w-full max-w-md bg-gray-900 shadow-xl  p-4 sm:p-8 mt-4">
       <h2 class="text-2xl font-semibold text-center mb-2 text-white">
@@ -120,7 +126,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { HTTPRequest } from '@/utils/HTTPRequest'
-
+import AppNavbar from '@/components/AppNavbar.vue'
 const router = useRouter()
 
 const loading = ref(false)

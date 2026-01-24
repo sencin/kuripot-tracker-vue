@@ -1,4 +1,10 @@
 <template>
+     <header>
+      <nav>
+        <AppNavbar />
+      </nav>
+  </header>
+
   <div class="flex items-center justify-center min-h-screen">
     <div class="w-full max-w-sm p-6 bg-gray-800 rounded-lg shadow-md">
       <h1 class="text-2xl font-bold text-center mb-6">Login</h1>
@@ -49,7 +55,7 @@
 import { ref } from "vue"
 import { useRouter, RouterLink } from "vue-router"
 import { useAuthStore } from "@/stores/authenticate"
-
+import AppNavbar from '@/components/AppNavbar.vue'
 import Button from "primevue/button"
 
 const { authenticate } = useAuthStore()

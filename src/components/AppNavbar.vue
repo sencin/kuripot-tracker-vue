@@ -58,7 +58,7 @@ const authMenu: MenuSection[] = [
           { label: 'Expenses', icon: 'pi pi-cart-minus', to: '/record/expenses' },
         ],
       },
-      { label: 'About Us', icon: 'pi pi-users', to: '/team' },
+      // { label: 'About Us', icon: 'pi pi-users', to: '/team' },
     ],
   },
   // {
@@ -75,7 +75,7 @@ const authMenu: MenuSection[] = [
 const guestMenu: MenuItem[] = [
   { label: 'Login', icon: 'pi pi-sign-in', to: '/login' },
   { label: 'Register', icon: 'pi pi-user-plus', to: '/register' },
-  { label: 'About', icon: 'pi pi-info-circle', to: '/about' },
+  // { label: 'About', icon: 'pi pi-info-circle', to: '/about' },
 ]
 
 // Computed menu based on user
