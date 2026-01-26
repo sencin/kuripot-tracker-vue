@@ -75,6 +75,7 @@
           <div class="flex flex-col gap-2">
             <label class="text-xs text-gray-400">Expense Category</label>
             <div class="grid grid-cols-2 gap-2">
+              <!-- Existing categories -->
               <button
                 v-for="cat in expenseCategoryOptions"
                 :key="cat.id"
@@ -88,8 +89,38 @@
                 <i class="pi pi-tag text-sm" />
                 {{ cat.name }}
               </button>
+
+              <!-- Add new category button -->
+              <button
+                type="button"
+                @click="showAddCategoryDialog = true"
+                class="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-gray-500 text-gray-300 hover:border-gray-400 hover:text-white text-sm transition"
+              >
+                <i class="pi pi-plus text-sm" />
+                New
+              </button>
             </div>
           </div>
+
+          <!-- Dialog for adding a new category -->
+          <Dialog v-model:visible="showAddCategoryDialog" header="Add Expense Category" modal>
+            <div class="flex flex-col gap-3">
+              <InputText
+                v-model="newCategoryName"
+                placeholder="Category Name"
+                class="p-inputtext w-full"
+              />
+              <Button
+                label="Add Category"
+                icon="pi pi-check"
+                :loading="loading"
+                class="p-button-success"
+                @click="addExpenseCategory"
+                :disabled="loading"
+              />
+            </div>
+          </Dialog>
+
 
           <!-- Description -->
           <InputText
@@ -105,6 +136,7 @@
             :loading="loading"
             class="w-full p-button-danger mt-2"
             @click="createTransaction"
+            :disabled="loading"
           />
         </div>
       </div>
@@ -166,6 +198,51 @@ const loading = ref(false)
 const isTransactionLoading = ref(true);
 const authStore = useAuthStore();
 const apiBaseUrl: string = import.meta.env.VITE_RESTAPI_URL;
+
+
+const showAddCategoryDialog = ref(false);
+const newCategoryName = ref("");
+const newCategoryImage = ref("");
+
+const addExpenseCategory = async () => {
+  if (!newCategoryName.value.trim()) return;
+
+  try {
+    loading.value = true;
+    const payload = {
+      name: newCategoryName.value.trim(),
+      image: newCategoryImage.value?.trim() || null,
+    };
+
+    // Call backend to create category
+    const res = await HTTPRequest.post<Option>('/api/expense-categories', payload, authStore.token);
+
+    // Add new category locally
+    expenseCategoryOptions.value.push(res.data);
+
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: `Category "${res.data.name}" added`,
+      life: 3000,
+    });
+
+    // Close dialog and reset
+    showAddCategoryDialog.value = false;
+    newCategoryName.value = "";
+    newCategoryImage.value = "";
+  } catch (err) {
+    console.error(err);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: (err as Error).message || "Failed to add category",
+      life: 3000,
+    });
+  } finally {
+    loading.value = false;
+  }
+};
 
 const expenseTransactions = computed(() =>
   transactions.value.filter(t => t.type === "EXPENSE")
