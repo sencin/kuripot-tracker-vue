@@ -91,6 +91,26 @@
             </div>
           </div>
 
+             <!-- Dialog for adding a new Payment Type -->
+          <Dialog v-model:visible="showAddPaymentTypeDialog" header="Add Payment Method" modal>
+            <div class="flex flex-col gap-3">
+              <InputText
+                v-model="newPaymentTypeName"
+                placeholder="Payment Method Name"
+                class="p-inputtext w-full"
+              />
+              <Button
+                label="Add Payment Method"
+                icon="pi pi-check"
+                class="p-button-success"
+                :loading="loading"
+                @click="addPaymentType"
+                :disabled="loading"
+              />
+            </div>
+          </Dialog>
+
+
           <!-- Expense Category -->
           <div class="flex flex-col gap-2">
             <label class="text-xs text-gray-400">Expense Category</label>
@@ -120,6 +140,24 @@
               </button>
             </div>
           </div>
+           <Dialog v-model:visible="showAddCategoryDialog" header="Add Expense Category" modal>
+            <div class="flex flex-col gap-3">
+              <InputText
+                v-model="newCategoryName"
+                placeholder="Category Name"
+                class="p-inputtext w-full"
+              />
+              <Button
+                label="Add Category"
+                icon="pi pi-check"
+                :loading="loading"
+                class="p-button-success"
+                @click="addExpenseCategory"
+                :disabled="loading"
+              />
+            </div>
+          </Dialog>
+
 
           <!-- Description -->
           <InputText
