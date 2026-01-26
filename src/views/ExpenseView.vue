@@ -1,29 +1,39 @@
 <template>
-  <div
-    class="min-h-screen flex items-center justify-center sm:px-6 lg:px-8 p-4"
-  >
+  <div class="min-h-screen flex flex-col items-center">
+
+    <!-- Header: Back + Mode Toggle -->
+<div class="flex items-center w-full max-w-lg p-4 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900 shadow-md">
+  
+  <!-- Back Button -->
+  <button @click="goBack" class="text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-700 transition">
+    <i class="pi pi-arrow-left"></i>
+  </button>
+
+  <!-- Spacer to push title to center -->
+  <div class="flex-1 flex justify-center">
+    <p class="text-sm font-semibold text-gray-100 text-center">
+      Generate New Expense
+    </p>
+  </div>
+
+  <!-- Right Button -->
+  <div class="flex items-center">
+    <Button
+      label="Chat"
+      size="small"
+      :outlined="true"
+      @click="goToChat"
+    />
+  </div>
+</div>
+
+
     <!-- Form Container -->
-    <div class="w-full max-w-md sm:max-w-lg">
-      
+    <div class="w-full max-w-md sm:max-w-lg sm:px-6 lg: p-4 ">
       <!-- Expense Card -->
-      <div class="relative rounded-xl space-y-4 sm:p-6  shadow-md sm:shadow-xl">
+      <div class="relative rounded-xl  space-y-4 sm:p-6 shadow-md sm:shadow-xl  ">
 
-        <!-- Back Button -->
-        <button
-          @click="goBack"
-          class="absolute top-3 left-3 flex items-center gap-1
-                 text-xs sm:text-sm text-gray-200 hover:text-white z-10"
-        >
-          <i class="pi pi-arrow-left"></i>
-          Back
-        </button>
-
-        <!-- Card Content with top padding so button doesn't overlap -->
-        <div class="pt-6 space-y-4">
-          <p class="text-sm font-semibold text-gray-100 text-center sm:text-left">
-            Generate New Expense
-          </p>
-
+        <!-- Card Content -->
           <!-- Amount -->
           <InputNumber
             v-model="newTransaction.amount"
@@ -52,11 +62,9 @@
           />
 
           <!-- Payment Method -->
-
           <div class="flex flex-col gap-2">
             <label class="text-xs text-gray-400">Payment Method</label>
             <div class="grid grid-cols-2 gap-2">
-              <!-- Existing payment types -->
               <button
                 v-for="opt in paymentTypeOptions"
                 :key="opt.id"
@@ -71,7 +79,7 @@
                 {{ opt.name }}
               </button>
 
-              <!-- Add new payment type button -->
+              <!-- Add new payment type -->
               <button
                 type="button"
                 @click="showAddPaymentTypeDialog = true"
@@ -83,30 +91,10 @@
             </div>
           </div>
 
-          <!-- Dialog for adding a new Payment Type -->
-          <Dialog v-model:visible="showAddPaymentTypeDialog" header="Add Payment Method" modal>
-            <div class="flex flex-col gap-3">
-              <InputText
-                v-model="newPaymentTypeName"
-                placeholder="Payment Method Name"
-                class="p-inputtext w-full"
-              />
-              <Button
-                label="Add Payment Method"
-                icon="pi pi-check"
-                class="p-button-success"
-                @click="addPaymentType"
-                :disabled="!newPaymentTypeName"
-              />
-            </div>
-          </Dialog>
-
-
           <!-- Expense Category -->
           <div class="flex flex-col gap-2">
             <label class="text-xs text-gray-400">Expense Category</label>
             <div class="grid grid-cols-2 gap-2">
-              <!-- Existing categories -->
               <button
                 v-for="cat in expenseCategoryOptions"
                 :key="cat.id"
@@ -121,7 +109,7 @@
                 {{ cat.name }}
               </button>
 
-              <!-- Add new category button -->
+              <!-- Add new category -->
               <button
                 type="button"
                 @click="showAddCategoryDialog = true"
@@ -133,26 +121,6 @@
             </div>
           </div>
 
-          <!-- Dialog for adding a new category -->
-          <Dialog v-model:visible="showAddCategoryDialog" header="Add Expense Category" modal>
-            <div class="flex flex-col gap-3">
-              <InputText
-                v-model="newCategoryName"
-                placeholder="Category Name"
-                class="p-inputtext w-full"
-              />
-              <Button
-                label="Add Category"
-                icon="pi pi-check"
-                :loading="loading"
-                class="p-button-success"
-                @click="addExpenseCategory"
-                :disabled="loading"
-              />
-            </div>
-          </Dialog>
-
-
           <!-- Description -->
           <InputText
             v-model="newTransaction.description"
@@ -160,7 +128,7 @@
             class="!border-0"
           />
 
-          <!-- Action -->
+          <!-- Save Button -->
           <Button
             label="Save Expense"
             icon="pi pi-check"
@@ -169,11 +137,13 @@
             @click="createTransaction"
             :disabled="loading"
           />
-        </div>
+
+   
       </div>
     </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">
@@ -200,7 +170,32 @@ const router = useRouter()
 const toast = useToast();
 
 
-const goBack = () => router.back()
+
+const inputMode = ref<'FORM' | 'CHAT'>(
+  (localStorage.getItem('inputMode') as 'FORM' | 'CHAT') || 'FORM'
+);
+
+// Redirect immediately if CHAT is selected
+onMounted(() => {
+  if (inputMode.value === 'CHAT') {
+    router.replace({ name: 'chat-based-expense' });
+  }
+});
+
+// Watch for changes and save to localStorage + route
+watch(inputMode, (val) => {
+  localStorage.setItem('inputMode', val);
+
+  if (val === 'CHAT') {
+    router.push({ name: 'chat-based-expense' });
+  } else {
+    router.push({ name: 'expenses' });
+  }
+});
+
+const goBack =()=>{
+  router.push({ name: 'AddTransaction' });
+}
 
 interface Transaction {
   id: number;
@@ -237,6 +232,11 @@ const newCategoryImage = ref("");
 
 const showAddPaymentTypeDialog = ref(false);
 const newPaymentTypeName = ref("");
+
+const goToChat = () => {
+  localStorage.setItem('inputMode', 'CHAT'); // persist mode
+  router.push({ name: 'chat-based-expense' }); // route to chat page
+};
 
 const addExpenseCategory = async () => {
   if (!newCategoryName.value.trim()) return;

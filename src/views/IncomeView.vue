@@ -1,7 +1,25 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center sm:px-6 lg:px-8 p-4">
+  <div class="min-h-screen flex flex-col items-center">
+
+  <div class="flex items-center w-full max-w-lg p-4 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900 shadow-md">
+    
+    <!-- Back Button -->
+    <button @click="goBack" class="text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-700 transition">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+
+    <!-- Spacer to push title to center -->
+    <div class="flex-1 flex justify-center">
+      <p class="text-sm font-semibold text-gray-100 text-center">
+        Generate New Income
+      </p>
+    </div>
+
+  </div>
+
+
     <!-- Form Container -->
-    <div class="relative w-full max-w-md sm:max-w-lg">
+    <div class="w-full max-w-md sm:max-w-lg sm:px-6 lg: p-4">
       <!-- Income Card -->
       <div
         class="rounded-xl
@@ -10,19 +28,7 @@
                bg-gradient-to-br from-primary-700 to-primary-900
                shadow-md sm:shadow-xl"
       >
-        <!-- Back Button inside card, top-left -->
-        <button
-          @click="goBack"
-          class="absolute top-3 left-3 flex items-center gap-1
-                 text-xs sm:text-sm text-gray-200 hover:text-white"
-        >
-          <i class="pi pi-arrow-left"></i>
-          Back
-        </button>
-
-        <p class="text-sm font-semibold text-white text-center sm:text-left mt-6">
-          Generate New Income
-        </p>
+   
 
         <InputNumber
           v-model="newTransaction.amount"
