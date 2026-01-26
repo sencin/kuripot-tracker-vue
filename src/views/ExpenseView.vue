@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen flex items-center justify-center"
+    class="min-h-screen flex items-center justify-center sm:px-6 lg:px-8 p-4"
   >
     <!-- Form Container -->
     <div class="w-full max-w-md sm:max-w-lg">
@@ -52,9 +52,11 @@
           />
 
           <!-- Payment Method -->
+
           <div class="flex flex-col gap-2">
             <label class="text-xs text-gray-400">Payment Method</label>
             <div class="grid grid-cols-2 gap-2">
+              <!-- Existing payment types -->
               <button
                 v-for="opt in paymentTypeOptions"
                 :key="opt.id"
@@ -68,8 +70,37 @@
                 <i class="pi pi-wallet text-sm" />
                 {{ opt.name }}
               </button>
+
+              <!-- Add new payment type button -->
+              <button
+                type="button"
+                @click="showAddPaymentTypeDialog = true"
+                class="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-gray-500 text-gray-300 hover:border-gray-400 hover:text-white text-sm transition"
+              >
+                <i class="pi pi-plus text-sm" />
+                New
+              </button>
             </div>
           </div>
+
+          <!-- Dialog for adding a new Payment Type -->
+          <Dialog v-model:visible="showAddPaymentTypeDialog" header="Add Payment Method" modal>
+            <div class="flex flex-col gap-3">
+              <InputText
+                v-model="newPaymentTypeName"
+                placeholder="Payment Method Name"
+                class="p-inputtext w-full"
+              />
+              <Button
+                label="Add Payment Method"
+                icon="pi pi-check"
+                class="p-button-success"
+                @click="addPaymentType"
+                :disabled="!newPaymentTypeName"
+              />
+            </div>
+          </Dialog>
+
 
           <!-- Expense Category -->
           <div class="flex flex-col gap-2">
@@ -204,6 +235,9 @@ const showAddCategoryDialog = ref(false);
 const newCategoryName = ref("");
 const newCategoryImage = ref("");
 
+const showAddPaymentTypeDialog = ref(false);
+const newPaymentTypeName = ref("");
+
 const addExpenseCategory = async () => {
   if (!newCategoryName.value.trim()) return;
 
@@ -237,6 +271,42 @@ const addExpenseCategory = async () => {
       severity: "error",
       summary: "Error",
       detail: (err as Error).message || "Failed to add category",
+      life: 3000,
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const addPaymentType = async () => {
+  if (!newPaymentTypeName.value.trim()) return;
+
+  try {
+    loading.value = true;
+    const payload = { name: newPaymentTypeName.value.trim() };
+
+    // POST to backend to create payment type
+    const res = await HTTPRequest.post<Option>('/api/payment-types', payload, authStore.token);
+
+    // Add locally
+    paymentTypeOptions.value.push(res.data);
+
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: `Payment Method "${res.data.name}" added`,
+      life: 3000,
+    });
+
+    // Reset and close dialog
+    showAddPaymentTypeDialog.value = false;
+    newPaymentTypeName.value = "";
+  } catch (err) {
+    console.error(err);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: (err as Error).message || "Failed to add payment method",
       life: 3000,
     });
   } finally {
