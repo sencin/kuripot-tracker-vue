@@ -1,5 +1,5 @@
 <template>
-     <header>
+     <header class="sm:px-6 lg:px-8 p-4">
       <nav>
         <AppNavbar />
       </nav>
