@@ -50,29 +50,55 @@
         />
 
         <!-- Payment Method -->
-        <div class="flex flex-col gap-2">
-          <label class="text-xs text-gray-300">
-            Payment Method
-          </label>
+          <div class="flex flex-col gap-2">
+            <label class="text-xs text-gray-400">Payment Method</label>
+            <div class="grid grid-cols-2 gap-2">
+              <!-- Existing payment types -->
+              <button
+                v-for="opt in paymentTypeOptions"
+                :key="opt.id"
+                type="button"
+                @click="newTransaction.paymentTypeId = opt.id"
+                class="flex items-center justify-center gap-2 p-2.5 rounded-lg border text-sm transition"
+                :class="newTransaction.paymentTypeId === opt.id
+                  ? 'border-green-400 bg-green-500/10 text-green-300'
+                  : 'border-gray-600 text-gray-300 hover:border-gray-400'"
+              >
+                <i class="pi pi-wallet text-sm" />
+                {{ opt.name }}
+              </button>
 
-          <div class="grid grid-cols-2 gap-2">
-            <button
-              v-for="opt in paymentTypeOptions"
-              :key="opt.id"
-              type="button"
-              @click="newTransaction.paymentTypeId = opt.id"
-              class="flex items-center justify-center gap-2
-                     p-2.5 rounded-lg border transition
-                     text-sm"
-              :class="newTransaction.paymentTypeId === opt.id
-                ? 'border-green-400 bg-green-500/10 text-green-300'
-                : 'border-gray-600 text-gray-300 hover:border-gray-400'"
-            >
-              <i class="pi pi-wallet text-sm" />
-              {{ opt.name }}
-            </button>
+              <!-- Add new payment type button -->
+              <button
+                type="button"
+                @click="showAddPaymentTypeDialog = true"
+                class="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-gray-500 text-gray-300 hover:border-gray-400 hover:text-white text-sm transition"
+              >
+                <i class="pi pi-plus text-sm" />
+                New
+              </button>
+            </div>
           </div>
-        </div>
+
+          <!-- Dialog for adding a new Payment Type -->
+          <Dialog v-model:visible="showAddPaymentTypeDialog" header="Add Payment Method" modal>
+            <div class="flex flex-col gap-3">
+              <InputText
+                v-model="newPaymentTypeName"
+                placeholder="Payment Method Name"
+                class="p-inputtext w-full"
+              />
+              <Button
+                label="Add Payment Method"
+                icon="pi pi-check"
+                :loading="loading"
+                class="p-button-success"
+                @click="addPaymentType"
+                :disabled="loading"
+              />
+            </div>
+          </Dialog>
+
 
         <InputText
           v-model="newTransaction.description"
@@ -146,6 +172,46 @@ const loading = ref(false)
 const isTransactionLoading = ref(true);
 const authStore = useAuthStore();
 const apiBaseUrl: string = import.meta.env.VITE_RESTAPI_URL;
+
+const showAddPaymentTypeDialog = ref(false);
+const newPaymentTypeName = ref("");
+
+const addPaymentType = async () => {
+  if (!newPaymentTypeName.value.trim()) return;
+
+  try {
+    loading.value = true;
+    const payload = { name: newPaymentTypeName.value.trim() };
+
+    // POST to backend to create payment type
+    const res = await HTTPRequest.post<Option>('/api/payment-types', payload, authStore.token);
+
+    // Add locally
+    paymentTypeOptions.value.push(res.data);
+
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: `Payment Method "${res.data.name}" added`,
+      life: 3000,
+    });
+
+    // Reset and close dialog
+    showAddPaymentTypeDialog.value = false;
+    newPaymentTypeName.value = "";
+  } catch (err) {
+    console.error(err);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: (err as Error).message || "Failed to add payment method",
+      life: 3000,
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
 
 const newTransaction = ref({
   type: "INCOME",
