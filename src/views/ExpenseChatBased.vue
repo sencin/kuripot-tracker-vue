@@ -63,7 +63,7 @@
             ? 'border-red-500 bg-red-500/20 text-red-400'
             : 'border-gray-700 text-gray-300 hover:border-gray-500 hover:bg-gray-700'"
         >
-            <span class="text-xl">{{ cat.empji || '🏷️' }}</span>
+            <span class="text-xl">{{ '🏷️' }}</span>
             <span class="truncate max-w-full">{{ cat.name }}</span>
         </button>
 
