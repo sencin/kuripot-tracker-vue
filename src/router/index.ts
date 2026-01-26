@@ -13,6 +13,7 @@ import AddTransactionView from '@/views/AddTransactionView.vue';
 import TransactionsView from '@/views/TransactionsView.vue';
 import VerifyOtp from '@/views/VerifyOtp.vue';
 import AccessCode from '@/views/AccessCode.vue';
+import ExpenseChatBased from '@/views/ExpenseChatBased.vue';
 
 const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean } }> = [
   {
@@ -81,7 +82,6 @@ const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean 
     component: Register,
     name: 'register',
     meta: { guest: true },
-    // meta: { requiresAccess: true }, // delete this also and uncommment the meta above
   },
   {
     path: '/verify-otp',
@@ -89,18 +89,19 @@ const routes: Array<RouteRecordRaw & { meta?: { auth?: boolean; guest?: boolean 
     name: 'verifyotp',
     meta: { guest: true },
   },
-    {
-    path: '/access-code',
-    component: AccessCode,
-    name: 'access-code',
-    meta: { guest: true },
-  }, // Delete this access code also
   {
     path: '/about',
     component: AboutView,
     name: 'about',
     meta: { guest: true },
   },
+    {
+    path: '/chat-based-expense',
+    component: ExpenseChatBased,
+    name: 'chat-based-expense',
+    meta: { auth: true },
+  },
+
 ];
 
 const router = createRouter({
