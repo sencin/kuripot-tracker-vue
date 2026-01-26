@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center">
+  <div class="min-h-screen flex items-center justify-center sm:px-6 lg:px-8 p-4">
     <!-- Form Container -->
     <div class="relative w-full max-w-md sm:max-w-lg">
       <!-- Income Card -->
