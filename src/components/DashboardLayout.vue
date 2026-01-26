@@ -1,10 +1,10 @@
 <template>
-    <header>
+    <header class="sm:px-6 lg:px-8 p-4">
       <nav>
         <AppNavbar />
       </nav>
   </header>
-  <div class="dashboard-layout min-h-screen text-white pb-28">
+  <div class="dashboard-layout min-h-screen text-white pb-28 ">
     <!-- Page content -->
     <router-view class="p-4" />
 
