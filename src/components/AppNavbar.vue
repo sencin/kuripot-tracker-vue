@@ -105,14 +105,14 @@ const handleLogout = async () => {
               </svg>
               <span class="font-semibold text-2xl text-primary">Kuripot Tracker</span>
             </span>
-            <!-- <Button
+            <Button
               type="button"
               @click="closeCallback"
               icon="pi pi-times"
               severity="danger"
               variant="text"
               class="p-0.5 text-xs"
-            /> -->
+            />
           </div>
 
           <!-- Drawer Menu -->
