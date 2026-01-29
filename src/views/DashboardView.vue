@@ -1,9 +1,9 @@
 <template>
-  <div class="min-h-screen p-4 text-white flex flex-col items-center gap-6">
+  <div class="min-h-screen px-4 text-white flex flex-col items-center gap-4">
 
     <!-- Top Card: Balance & Summary -->
     <div
-      class="w-full max-w-4xl rounded-2xl bg-gray-900 bg-gradient-to-br from-primary-700 to-primary-900 shadow-2xl p-6 flex flex-col sm:flex-row sm:justify-between gap-6"
+      class="w-full max-w-4xl rounded-2xl bg-gray-900 bg-linear-to-br from-primary-700 to-primary-900 shadow-2xl p-6 flex flex-col sm:flex-row sm:justify-between gap-6"
     >
       <!-- Total Balance -->
       <div class="flex-1 flex flex-col justify-center sm:pr-6">
