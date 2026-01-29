@@ -29,7 +29,7 @@
     </div>
 
     <!-- Transactions List -->
-   <div class="w-full max-w-4xl mt-6 space-y-4">
+   <div class="w-full max-w-4xl space-y-4">
   <h2 class="text-lg sm:text-xl font-semibold text-gray-200 mb-2">Recent Transactions</h2>
 
   <div v-if="isTransactionLoading" class="text-sm text-gray-400">Loading...</div>
@@ -38,7 +38,7 @@
     <div
       v-for="tx in recentTransactions"
       :key="tx.id"
-      class="flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-gray-500 hover:shadow-md transition-shadow duration-200 bg-gray-800"
+      class="flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-gray-500 hover:shadow-md transition-shadow duration-200 bg-gray-900 bg-linear-to-br from-primary-700 to-primary-900"
     >
       <!-- Icon -->
       <div class="flex items-center flex-shrink-0">
@@ -118,8 +118,8 @@ const totalExpense = computed(() =>
 );
 const totalBalance = computed(() => totalIncome.value - totalExpense.value);
 
-// Show only latest 10 transactions
-const recentTransactions = computed(() => transactions.value.slice(0, 10));
+// Show only latest 5 transactions
+const recentTransactions = computed(() => transactions.value.slice(0, 5));
 
 const formatTimeAMPM = (time?: string) => {
   if (!time) return '';

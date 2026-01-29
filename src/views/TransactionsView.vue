@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen p-4 text-white flex flex-col items-center gap-4">
+  <div class="min-h-screen px-4 text-white flex flex-col items-center gap-2">
 
     <h1 class="text-xl sm:text-2xl font-semibold text-gray-200 mb-4">All Transactions</h1>
 
@@ -22,7 +22,7 @@
       <div
         v-for="tx in filteredTransactions"
         :key="tx.id"
-        class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border gap-2 border-gray-700 hover:border-gray-500 hover:shadow-md transition-shadow duration-200 bg-gray-800"
+        class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border gap-2 border-gray-700 hover:border-gray-500 hover:shadow-md transition-shadow duration-200 bg-gray-900 bg-linear-to-br from-primary-700 to-primary-900"
       >
         <!-- Left Icon -->
         <div class="flex-shrink-0 mb-2 sm:mb-0">

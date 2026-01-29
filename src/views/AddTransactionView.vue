@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 space-y-6 min-h-screen text-white">
+  <div class="px-4 space-y-6 min-h-screen text-white">
     <div class="flex gap-3 justify-center flex-wrap">
       <!-- Add Income Card -->
       <div
