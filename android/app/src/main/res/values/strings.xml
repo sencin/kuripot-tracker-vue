@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">kuripot-tracker-vue</string>
+    <string name="title_activity_main">kuripot-tracker-vue</string>
+    <string name="package_name">com.uwu.ktracker</string>
+    <string name="custom_url_scheme">com.uwu.ktracker</string>
+</resources>
