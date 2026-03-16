@@ -1,12 +1,13 @@
 <template>
-   <header class="sm:px-6 lg:px-8 p-4">
-      <nav>
-        <AppNavbar />
-      </nav>
-  </header>
+   <div class="flex flex-col h-screen">
+       <header class="sm:px-6 lg:px-8 p-4">
+          <nav>
+            <AppNavbar />
+          </nav>
+      </header>
 
-  <div class="min-h-screen flex items-center justify-center px-4 ">
-    <div class="w-full max-w-md bg-gray-900 shadow-xl  p-4 sm:p-8 mt-4">
+        <div class="flex flex-1 items-center justify-center">
+    <div class="w-full max-w-md bg-gray-900 shadow-xl  p-4 sm:p-8 m-4">
       <h2 class="text-2xl font-semibold text-center mb-2 text-white">
         Create Account
       </h2>
@@ -118,6 +119,7 @@
       </p>
     </div>
   </div>
+   </div>
 </template>
 
 
