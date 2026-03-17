@@ -4,16 +4,16 @@
         <AppNavbar />
       </nav>
   </header>
-  <div class="dashboard-layout min-h-screen text-white pb-28 ">
+  <div class="dashboard-layout min-h-screen text-white pb-20 ">
     <!-- Page content -->
     <router-view />
 
     <!-- Dock-style Bottom Tabs -->
     <Tabs
       v-model:value="activeTab"
-      class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50"
+      class="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50"
     >
-      <TabList class="flex gap-6 bg-gray-900 border border-gray-700 bg-opacity-80 backdrop-blur-lg rounded-full px-6 py-3 shadow-lg">
+      <TabList class="flex gap-6 bg-gray-900 border border-gray-700 bg-opacity-80 backdrop-blur-lg px-6 py-3 shadow-lg">
         <Tab
           v-for="tab in items"
           :key="tab.route"
