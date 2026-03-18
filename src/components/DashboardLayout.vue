@@ -11,9 +11,9 @@
     <!-- Dock-style Bottom Tabs -->
     <Tabs
       v-model:value="activeTab"
-      class="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50"
+      class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50"
     >
-      <TabList class="flex gap-6 bg-gray-900 border border-gray-700 bg-opacity-80 backdrop-blur-lg px-6 py-3 shadow-lg">
+      <TabList class="flex gap-6 bg-gray-900 border border-gray-700 bg-opacity-80 rounded-lg backdrop-blur-lg px-6 py-3 shadow-lg">
         <Tab
           v-for="tab in items"
           :key="tab.route"
