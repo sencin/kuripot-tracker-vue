@@ -1,236 +1,202 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import Drawer from 'primevue/drawer'
-import Button from 'primevue/button'
-import Avatar from 'primevue/avatar'
-import { RouterLink, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authenticate.ts'
-import type { User } from '@/stores/authenticate'
+import { ref, computed, watch } from 'vue';
+import { RouterLink, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authenticate.ts';
 
-// Drawer visibility
-const visible = ref(false)
-
-// Menu item type
-interface MenuItem {
-  label: string
-  icon: string
-  to?: string
-  key?: string // for collapsible parent
-  children?: MenuItem[] // nested submenu
-}
-
-// Section type
-interface MenuSection {
-  title: string
-  key: string
-  items: MenuItem[]
-}
-
-
-// Collapsible menus state
-const openMenus = ref<Record<string, boolean>>({
-  Main: true,
-  record: true,
-  application: true,
-})
-
-const authStore = useAuthStore();
+const visible = ref(false);
 const router = useRouter();
+const authStore = useAuthStore();
 
 const user = computed(() =>
   authStore.isAuthenticated ? authStore.user : null
 )
 
-// Menu for logged-in users
-const authMenu: MenuSection[] = [
-  {
-    title: 'Main Menu',
-    key: 'Main',
-    items: [
-      { label: 'Dashboard', icon: 'pi pi-home', to: '/home' },
-      { label: 'Overview', icon: 'pi pi-chart-bar', to: '/overview' },
-      {
-        label: 'Record',
-        icon: 'pi pi-calculator',
-        key: 'record',
-        children: [
-          { label: 'Income', icon: 'pi pi-cart-plus', to: '/record/income' },
-          { label: 'Expenses', icon: 'pi pi-cart-minus', to: '/record/expenses' },
-        ],
-      },
-      // { label: 'About Us', icon: 'pi pi-users', to: '/team' },
-    ],
-  },
-  // {
-  //   title: 'APPLICATION',
-  //   key: 'application',
-  //   items: [
-  //     { label: 'Projects', icon: 'pi pi-folder', to: '/projects' },
-  //     { label: 'Performance', icon: 'pi pi-chart-bar', to: '/performance' },
-  //   ],
-  // },
-]
+const props = defineProps<{ title?: string }>();
 
-// Menu for guests
-const guestMenu: MenuItem[] = [
-  { label: 'Login', icon: 'pi pi-sign-in', to: '/login' },
-  { label: 'Register', icon: 'pi pi-user-plus', to: '/register' },
-  // { label: 'About', icon: 'pi pi-info-circle', to: '/about' },
-]
+const fullName = computed(() => {
+  if (!authStore.user) return "User";
+  return `${authStore.user.first_name} ${authStore.user.last_name}`;
+});
 
-// Computed menu based on user
-const menu = computed<MenuSection[] | MenuItem[]>(() => (user.value ? authMenu : guestMenu))
+const menuItems = [
+  { label: 'Home', icon: 'home', to: '/home' },
+  { label: 'Overview', icon: 'chart', to: '/analytics' },
+  { label: 'Income', icon: 'arrow-down', to: '/record/income' },
+  { label: 'Expenses', icon: 'arrow-up', to: '/record/expenses' },
+];
+
+const guestMenu = [
+  { label: 'Login', icon: 'login', to: '/login' },
+  { label: 'Register', icon: 'register', to: '/register' },
+];
 
 const handleLogout = async () => {
   const success = await authStore.logout();
   if (success) {
-    router.push({ name: "login" }); 
-    visible.value = false
+    router.push('/login');
+    visible.value = false;
   }
 };
-
 </script>
 
 <template>
-  <div class="card flex justify-start">
-    <Drawer v-model:visible="visible">
-      <template #container="{ closeCallback }">
-        <div class="flex flex-col h-full">
-          <!-- Drawer Header -->
-          <div class="flex items-center justify-between px-6 pt-4 shrink-0">
-            <span class="inline-flex items-center gap-2">
-              <svg width="35" height="40" viewBox="0 0 35 40" fill="none">
-                <path d="..." fill="var(--p-primary-color)" />
-                <path d="..." fill="var(--p-text-color)" />
+  <div>
+    <!-- Hamburger Button -->
+      <nav class="flex items-center justify-between bg-gray-900 text-white px-4 py-2 shadow-md rounded-xl">
+    <!-- Left: Hamburger -->
+    <button @click="visible = true" class="p-2 rounded-md hover:bg-gray-800 focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <!-- Center: Dynamic title -->
+    <div class="flex-1 text-center text-lg font-semibold truncate">
+      {{ props.title }}
+    </div>
+
+    <!-- Right: Notification Icon -->
+    <button class="p-2 rounded-md hover:bg-gray-800 relative">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V4a1 1 0 1 0-2 0v1.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 1 1-6 0h6z"/>
+      </svg>
+      <!-- Notification badge -->
+      <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+    </button>
+  </nav>
+
+    <!-- Drawer -->
+    <transition name="slide">
+      <div v-if="visible" class="fixed inset-0 z-9999 flex">
+        <!-- Overlay -->
+        <div class="fixed inset-0 bg-black bg-opacity-50" @click="visible = false"></div>
+
+        <!-- Drawer panel -->
+        <div class="relative flex flex-col w-72 bg-gray-900 text-white h-full">
+          <!-- Header -->
+          <div class="flex items-center justify-between p-4 border-b border-gray-700">
+             <div v-if="user" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center text-xl font-bold">
+                  <img 
+                    :src="user.avatar ? user.avatar : 'https://www.smogon.com/forums/data/avatars/o/472/472281.jpg?1546953868'"
+                    alt="User Avatar" 
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div class="flex flex-col">
+                  <p class="font-semibold">{{ fullName }}</p>
+                  <p class="text-xs text-gray-400">{{ user.last_name || '' }}</p>
+                </div>
+              </div>
+            <button @click="visible = false" class="p-2 rounded-md hover:bg-gray-800">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                   viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
-              <span class="font-semibold text-2xl text-primary">Kuripot Tracker</span>
-            </span>
-            <Button
-              type="button"
-              @click="closeCallback"
-              icon="pi pi-times"
-              severity="danger"
-              variant="text"
-              class="p-0.5 text-xs"
-            />
+            </button>
           </div>
 
-          <!-- Drawer Menu -->
-          <div class="overflow-y-auto">
-            <!-- Logged-in menu -->
-            <template v-if="user">
-              <ul
-                class="list-none p-4 m-0"
-                v-for="section in menu as MenuSection[]"
-                :key="section.key"
-              >
-                <li>
-                  <div
-                    class="p-4 flex items-center justify-between text-surface-500 dark:text-surface-400 cursor-pointer"
-                    @click="openMenus[section.key] = !openMenus[section.key]"
-                  >
-                    <span class="font-medium">{{ section.title }}</span>
-                    <i
-                      :class="openMenus[section.key] ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-                    ></i>
-                  </div>
-                  <ul
-                    v-show="openMenus[section.key]"
-                    class="list-none p-0 m-0 overflow-hidden transition-all duration-300"
-                  >
-                    <template v-for="item in section.items">
-                      <li v-if="!item.children" :key="item.to">
-                        <RouterLink
-                          :to="item.to!"
-                          class="flex items-center p-4 rounded hover:bg-surface-100 dark:hover:bg-surface-800"
-                          @click="visible = false"
-                        >
-                          <i :class="item.icon + ' mr-2'"></i>
-                          {{ item.label }}
-                        </RouterLink>
-                      </li>
-                      <li v-else :key="item.key">
-                        <div
-                          class="flex items-center p-4 rounded hover:bg-surface-100 dark:hover:bg-surface-800 cursor-pointer"
-                          @click="openMenus[item.key!] = !openMenus[item.key!]"
-                        >
-                          <i :class="item.icon + ' mr-2'"></i>
-                          {{ item.label }}
-                          <i
-                            :class="
-                              openMenus[item.key!]
-                                ? 'pi pi-chevron-up ml-auto'
-                                : 'pi pi-chevron-down ml-auto'
-                            "
-                          ></i>
-                        </div>
-                        <ul
-                          v-show="openMenus[item.key!]"
-                          class="list-none pl-4 transition-all duration-300"
-                        >
-                          <li v-for="child in item.children" :key="child.to">
-                            <RouterLink
-                              :to="child.to!"
-                              class="flex items-center p-4 rounded hover:bg-surface-100 dark:hover:bg-surface-800"
-                              @click="visible = false"
-                            >
-                              <i :class="child.icon + ' mr-2'"></i>
-                              {{ child.label }}
-                            </RouterLink>
-                          </li>
-                        </ul>
-                      </li>
-                    </template>
-                  </ul>
-                </li>
-              </ul>
-            </template>
-
-            <!-- Guest menu -->
-            <template v-else>
-              <ul class="list-none p-4 m-0">
-                <li v-for="item in menu as MenuItem[]" :key="item.to">
-                  <RouterLink
-                    :to="item.to!"
-                    class="flex items-center p-4 rounded hover:bg-surface-100 dark:hover:bg-surface-800"
-                    @click="visible = false"
-                  >
-                    <i :class="item.icon + ' mr-2'"></i>
-                    {{ item.label }}
-                  </RouterLink>
-                </li>
-              </ul>
-            </template>
+          <!-- Menu -->
+          <div class="flex-1 overflow-y-auto py-2">
+            <RouterLink
+              v-for="item in user ? menuItems : guestMenu"
+              :key="item.to"
+              :to="item.to"
+              @click="visible = false"
+              class="flex items-center gap-3 px-4 py-3 hover:bg-gray-800 rounded transition"
+            >
+              <span class="w-6 h-6 flex items-center justify-center">
+                <template v-if="item.icon === 'home'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                       viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <path d="M9 22V12h6v10"/>
+                  </svg>
+                </template>
+                <template v-else-if="item.icon === 'chart'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                       viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18"/>
+                    <path d="M9 17v-6"/>
+                    <path d="M13 17v-10"/>
+                    <path d="M17 17v-4"/>
+                  </svg>
+                </template>
+                <template v-else-if="item.icon === 'arrow-down'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                       viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14m7-7l-7 7-7-7"/>
+                  </svg>
+                </template>
+                <template v-else-if="item.icon === 'arrow-up'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                       viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19V5m7 7l-7-7-7 7"/>
+                  </svg>
+                </template>
+                <template v-else-if="item.icon === 'login'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                       viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <path d="M10 17l5-5-5-5"/>
+                    <path d="M10 12h10"/>
+                  </svg>
+                </template>
+                <template v-else-if="item.icon === 'register'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                       viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="7" r="4"/>
+                    <path d="M5.5 21a7 7 0 0 1 13 0"/>
+                  </svg>
+                </template>
+              </span>
+              <span class="text-sm">{{ item.label }}</span>
+            </RouterLink>
           </div>
 
-          <!-- Drawer Footer -->
-          <div v-if="user" class="mt-auto px-4 py-4">
-        
-            <!-- Account + Logout buttons -->
-            <div class="flex items-center gap-2">
-              <RouterLink to="/profile" class="flex-auto">
-                <Button 
-                  label="Account" 
-                  icon="pi pi-user" 
-                  class="w-full" 
-                  variant="outlined" 
-                />
-              </RouterLink>
+          <!-- Bottom actions -->
+          <div v-if="user" class="p-4 border-t border-gray-700 space-y-2">
+            <RouterLink to="/profile" @click="visible = false"
+                        class="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-800">
+              <span class="w-6 h-6 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="7" r="4"/>
+                  <path d="M5.5 21a7 7 0 0 1 13 0"/>
+                </svg>
+              </span>
+              <span class="text-sm">Profile</span>
+            </RouterLink>
 
-              <Button 
-                label="Logout" 
-                icon="pi pi-sign-out" 
-                class="flex-auto"
-                severity="danger" 
-                variant="outlined"
-                @click="handleLogout"
-              />
+            <div @click="handleLogout"
+                 class="flex items-center gap-3 px-3 py-2 rounded hover:bg-red-500/20 cursor-pointer">
+              <span class="w-6 h-6 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 16l4-4-4-4"/>
+                  <path d="M7 12h14"/>
+                  <path d="M7 16v1a2 2 0 0 0 2 2h4"/>
+                  <path d="M7 8V7a2 2 0 0 1 2-2h4"/>
+                </svg>
+              </span>
+              <span class="text-sm text-red-400">Logout</span>
             </div>
           </div>
         </div>
-      </template>
-    </Drawer>
-
-    <Button icon="pi pi-bars" @click="visible = true" severity="secondary" />
+      </div>
+    </transition>
   </div>
 </template>
+
+<style scoped>
+/* Slide animation */
+.slide-enter-from { transform: translateX(-100%); opacity: 0; }
+.slide-enter-to   { transform: translateX(0); opacity: 1; }
+.slide-leave-from { transform: translateX(0); opacity: 1; }
+.slide-leave-to   { transform: translateX(-100%); opacity: 0; }
+.slide-enter-active,
+.slide-leave-active { transition: all 0.25s ease; }
+</style>

@@ -1,10 +1,10 @@
 <template>
     <header class="sm:px-6 lg:px-8 p-4">
       <nav>
-        <AppNavbar />
+        <AppNavbar :title="activeLabel" />
       </nav>
   </header>
-  <div class="dashboard-layout min-h-screen text-white pb-20 ">
+  <div class="dashboard-layout min-h-screen text-white pb-24 ">
     <!-- Page content -->
     <router-view />
 
@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import AppNavbar from '@/components/AppNavbar.vue'
 const route = useRoute();
@@ -54,6 +54,11 @@ watch(
     activeTab.value = path;
   }
 );
+
+const activeLabel = computed(() => {
+  const tab = items.find(item => item.route === activeTab.value);
+  return tab ? tab.label : '';
+});
 
 const items = [
   { label: 'Home', route: '/home', icon: 'pi pi-home' },
