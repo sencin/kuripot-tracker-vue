@@ -8,6 +8,7 @@ export interface User {
   user_id: number
   first_name: string
   last_name: string
+  avatar: string
   role: string[]
 }
 interface AuthResponse {
@@ -15,6 +16,7 @@ interface AuthResponse {
   id: number;
   firstName: string;
   lastName: string;
+  avatar: string;
   roles: string[] | string;
   errors?: unknown;
 }
@@ -23,6 +25,7 @@ interface UserResponse {
   id: number;
   firstName: string;
   lastName: string;
+  avatar: string;
   roles: string[] | string;
 }
 
@@ -39,6 +42,7 @@ export const useAuthStore = defineStore("authStore", {
       first_name: "",
       last_name: "",
       role: [],
+      avatar: ""
     },
     isAuthenticated: false,
     isVerified: false,
@@ -72,14 +76,19 @@ export const useAuthStore = defineStore("authStore", {
         if (!res.ok) throw new Error("Token invalid");
 
         const data: UserResponse = await res.json();
-        this.user.user_id = data.id;
-        this.user.first_name = data.firstName;
-        this.user.last_name = data.lastName;
-        this.user.role = Array.isArray(data.roles) ? data.roles : [data.roles];
 
+        this.user = {
+          user_id : data.id,
+          first_name : data.firstName,
+          last_name : data.lastName,
+          role : Array.isArray(data.roles) ? data.roles : [data.roles],
+          avatar: data.avatar
+        }
+      
         this.isAuthenticated = true;
         this.isVerified = true;
 
+        console.log("user fetched", data)
       } catch {
         await this.logout();
       } finally {
@@ -108,10 +117,15 @@ export const useAuthStore = defineStore("authStore", {
       this.token = data.token;
       localStorage.setItem("token", data.token);
       this.isVerified = false;
-      this.user.user_id = data.id;
-      this.user.first_name = data.firstName;
-      this.user.last_name = data.lastName;
-      this.user.role = Array.isArray(data.roles) ? data.roles : [data.roles];
+
+      this.user = {
+        user_id : data.id,
+        first_name : data.firstName,
+        last_name : data.lastName,
+        role : Array.isArray(data.roles) ? data.roles : [data.roles],
+        avatar: data.avatar
+      }
+
       this.isAuthenticated = true;
       return data;
     }
@@ -139,6 +153,7 @@ export const useAuthStore = defineStore("authStore", {
           first_name: "",
           last_name: "",
           role: [],
+          avatar:""
         };
         this.token = "";
         localStorage.removeItem("token");
